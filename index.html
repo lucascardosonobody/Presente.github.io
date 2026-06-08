@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>7 meses com você ❤️</title>
+
+  <style>
+    :root {
+      --rosa: #ff5fa2;
+      --rosa2: #ff86bc;
+      --rosa-claro: #ffd5e8;
+      --branco: #ffffff;
+      --neon: #ff72b2;
+      --neon-soft: rgba(255, 114, 178, 0.34);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+    }
+
+    body {
+      position: relative;
+      min-height: 100svh;
+      font-family: "Georgia", "Times New Roman", serif;
+    }
+
+    .sky {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255, 95, 162, 0.20), transparent 26%),
+        radial-gradient(circle at 82% 10%, rgba(255, 255, 255, 0.08), transparent 22%),
+        radial-gradient(circle at 60% 82%, rgba(255, 95, 162, 0.13), transparent 28%),
+        linear-gradient(180deg, #010107 0%, #05000a 45%, #000 100%);
+    }
+
+    .stars,
+    .stars::before,
+    .stars::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(#fff 1px, transparent 1px),
+        radial-gradient(#fff 1px, transparent 1px);
+      background-size: 90px 90px, 140px 140px;
+      background-position: 0 0, 35px 45px;
+      opacity: .62;
+      animation: twinkle 5.5s ease-in-out infinite alternate;
+    }
+
+    .stars::before {
+      background-size: 55px 55px, 110px 110px;
+      background-position: 15px 15px, 70px 80px;
+      opacity: .34;
+      animation-duration: 7s;
+    }
+
+    .stars::after {
+      background-size: 180px 180px, 240px 240px;
+      background-position: 90px 20px, 10px 120px;
+      opacity: .22;
+      animation-duration: 9s;
+    }
+
+    @keyframes twinkle {
+      from { opacity: .28; transform: scale(1); }
+      to { opacity: .92; transform: scale(1.02); }
+    }
+
+    .start-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0,0,0,.84);
+      transition: .7s ease;
+    }
+
+    .start-screen.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .start-card {
+      width: min(520px, 92vw);
+      padding: 30px 22px;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      text-align: center;
+      box-shadow: 0 0 45px rgba(255, 95, 162, .16);
+    }
+
+    .start-card h1 {
+      font-size: clamp(2.2rem, 15vw, 4rem);
+      color: var(--rosa-claro);
+      margin-bottom: 12px;
+      text-shadow:
+        0 0 8px rgba(255,114,178,.9),
+        0 0 20px rgba(255,114,178,.55);
+    }
+
+    .start-card p {
+      line-height: 1.55;
+      color: rgba(255,255,255,.84);
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    .start-card button,
+    .photo-loader label {
+      border: none;
+      cursor: pointer;
+      padding: 13px 22px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ff5fa2, #ff8bc0);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: 0 10px 28px rgba(255,95,162,.28);
+      transition: .25s ease;
+    }
+
+    .main {
+      position: relative;
+      width: 100vw;
+      height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .floating-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    /* coração grande como na primeira versão */
+    .main-heart {
+      position: absolute;
+      width: min(96vw, 660px);
+      height: min(74svh, 600px);
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -49%);
+      z-index: 2;
+      pointer-events: none;
+      filter: drop-shadow(0 0 10px rgba(255, 95, 162, 0.20));
+      opacity: .9;
+    }
+
+    .main-heart .heart-word {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      white-space: nowrap;
+      font-size: clamp(.52rem, 2.15vw, .88rem);
+      letter-spacing: .8px;
+      color: rgba(255, 215, 232, .84);
+      text-shadow: 0 0 8px rgba(255,95,162,.72);
+      transform: translate(-50%, -50%);
+      animation: pulseWord 2.8s ease-in-out infinite;
+    }
+
+    @keyframes pulseWord {
+      0%, 100% { opacity: .55; }
+      50% { opacity: 1; }
+    }
+
+    /* pequenos corações */
+    .floating-heart {
+      position: absolute;
+      left: var(--left);
+      bottom: -190px;
+      width: var(--size);
+      height: var(--size);
+      opacity: 0;
+      z-index: 1;
+      filter: drop-shadow(0 0 10px rgba(255,95,162,.18));
+      animation: floatHeartUp var(--duration) linear forwards;
+    }
+
+    .floating-heart .heart-word {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      white-space: nowrap;
+      color: rgba(255, 215, 232, .84);
+      text-shadow: 0 0 10px rgba(255,95,162,.72);
+      font-size: calc(var(--size) / 17);
+      letter-spacing: .5px;
+      transform:
+        translate(-50%, -50%)
+        translate(var(--x), var(--y))
+        rotate(var(--angle));
+    }
+
+    .floating-heart .heart-core {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: calc(var(--size) / 3.5);
+      color: rgba(255,95,162,.16);
+      text-shadow: 0 0 18px rgba(255,95,162,.35);
+    }
+
+    @keyframes floatHeartUp {
+      0% {
+        transform: translateY(0) translateX(0) rotate(var(--start-rot)) scale(.82);
+        opacity: 0;
+      }
+      12% { opacity: .75; }
+      80% { opacity: .72; }
+      100% {
+        transform: translateY(-126svh) translateX(var(--drift)) rotate(var(--end-rot)) scale(1.04);
+        opacity: 0;
+      }
+    }
+
+    /* menos fotos */
+    .floating-photo {
+      position: absolute;
+      left: var(--left);
+      bottom: -180px;
+      z-index: 3;
+      width: var(--size);
+      aspect-ratio: 4 / 5;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.65);
+      background:
+        linear-gradient(145deg, rgba(255,95,162,.18), rgba(255,255,255,.06)),
+        rgba(255,255,255,.05);
+      box-shadow:
+        0 14px 28px rgba(0,0,0,.42),
+        0 0 18px rgba(255,95,162,.16);
+      animation: floatPhotoUp var(--duration) linear forwards;
+      opacity: 0;
+    }
+
+    .floating-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .floating-photo span {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 10px;
+      color: rgba(255,255,255,.72);
+      font-size: .76rem;
+      line-height: 1.35;
+    }
+
+    @keyframes floatPhotoUp {
+      0% {
+        transform: translateY(0) translateX(0) rotate(var(--start-rot)) scale(.9);
+        opacity: 0;
+      }
+      14% { opacity: .90; }
+      78% { opacity: .88; }
+      100% {
+        transform: translateY(-123svh) translateX(var(--drift)) rotate(var(--end-rot)) scale(1.0);
+        opacity: 0;
+      }
+    }
+
+    .letter-box {
+      position: relative;
+      z-index: 5;
+      width: min(760px, 95vw);
+      height: 83svh;
+      overflow: hidden;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      mask-image: linear-gradient(to bottom, transparent 0%, #000 8%, #000 90%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 8%, #000 90%, transparent 100%);
+    }
+
+    .message {
+      position: absolute;
+      width: 100%;
+      padding: 86svh 16px 86svh;
+      font-family: "Trebuchet MS", "Gill Sans", "Verdana", sans-serif;
+      color: rgba(255,255,255,.98);
+      font-size: clamp(1rem, 4.9vw, 1.16rem);
+      line-height: 1.72;
+      text-align: left;
+      animation: scrollMessage 540s linear infinite;
+      animation-play-state: paused;
+      text-shadow:
+        0 0 2px rgba(255,255,255,.55),
+        0 0 7px rgba(255,114,178,.38),
+        0 0 14px rgba(255,114,178,.22),
+        0 2px 7px rgba(0,0,0,.96);
+    }
+
+    body.started .message {
+      animation-play-state: running;
+    }
+
+    .message h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: clamp(2rem, 8vw, 2.8rem);
+      color: #ffe0ef;
+      text-shadow:
+        0 0 5px rgba(255,255,255,.75),
+        0 0 10px rgba(255,114,178,.85),
+        0 0 22px rgba(255,114,178,.50),
+        0 2px 8px rgba(0,0,0,.95);
+    }
+
+    .message p {
+      margin-bottom: 22px;
+    }
+
+    .message .reason {
+      margin-bottom: 12px;
+      line-height: 1.58;
+      padding-left: 2px;
+    }
+
+    @keyframes scrollMessage {
+      from { transform: translateY(0); }
+      to { transform: translateY(-100%); }
+    }
+
+    .top-title {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92vw;
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+      font-family: "Trebuchet MS", "Verdana", sans-serif;
+      font-size: clamp(.86rem, 3.7vw, 1rem);
+      color: rgba(255,255,255,.86);
+      text-shadow:
+        0 0 4px rgba(255,255,255,.45),
+        0 0 12px rgba(255,114,178,.35),
+        0 2px 7px rgba(0,0,0,.86);
+    }
+
+    .photo-loader {
+      position: fixed;
+      left: 50%;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 15;
+      width: 94vw;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .photo-loader input { display: none; }
+    .photo-loader small { display: none; }
+
+    @media (max-width: 760px) {
+      .main-heart {
+        width: 110vw;
+        height: 68svh;
+        top: 47.8%;
+        opacity: .82;
+      }
+
+      .main-heart .heart-word {
+        font-size: clamp(.5rem, 2.6vw, .72rem);
+      }
+
+      .letter-box {
+        width: 96vw;
+        height: 84svh;
+      }
+
+      .message {
+        font-size: clamp(1rem, 4.95vw, 1.14rem);
+        line-height: 1.73;
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-top: 88svh;
+        padding-bottom: 88svh;
+        animation-duration: 560s;
+      }
+
+      .message p {
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .main-heart {
+        width: 120vw;
+        height: 66svh;
+      }
+
+      .message {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sky">
+    <div class="stars"></div>
+  </div>
+
+  <section class="start-screen" id="startScreen">
+    <div class="start-card">
+      <h1>❤️</h1>
+      <p>Monique, fiz uma surpresa para os nossos 7 meses. Clique para começar.</p>
+      <button id="startButton">Começar surpresa</button>
+    </div>
+  </section>
+
+
+  <div class="floating-layer" id="floatingLayer"></div>
+
+  <main class="main">
+    <div class="main-heart" id="mainHeart"></div>
+
+    <section class="letter-box" id="letterBox">
+      <div class="message" id="message">
+          <h2>Querida Monique.</h2>
+          <p>Hoje, dia 09/06, fazemos 7 meses juntos. Sete meses. Quando eu paro para pensar nisso, parece impossível resumir tudo que vivemos em um número tão pequeno. Porque na minha cabeça parece que eu te conheço há muito mais tempo. Parece que você sempre esteve aqui, fazendo parte da minha rotina, dos meus pensamentos, dos meus planos e até das minhas preocupações. É estranho pensar em como alguém que antes era totalmente desconhecida hoje se tornou uma das pessoas mais importantes da minha vida.</p>
+          <p>E o mais engraçado de tudo é o jeito que isso começou.</p>
+          <p>Porque definitivamente não foi algo cinematográfico kkkkk.</p>
+          <p>Eu poderia muito bem inventar uma história absurda e falar que foi em uma ponte, em uma noite fria, enquanto o vento batia no seu cabelo e nossos olhares se cruzavam lentamente como em filme romântico. Seria muito mais bonito. Muito mais elegante. Muito mais digno.</p>
+          <p>Mas não.</p>
+          <p>Foi a Duda me mostrando o seu Instagram.</p>
+          <p>E o mais engraçado é que, na hora, eu falei para a Duda que você nem fazia meu tipo kkkkk. Mal sabia eu que poucas horas depois eu estaria completamente encantado por uma garota que eu nem conhecia ainda. Porque bastou olhar melhor para você que eu comecei a reparar nos seus olhos, no seu sorriso, no seu cabelo, no jeito delicado que você aparecia nas fotos… e conforme eu fui vendo mais sobre você, mais curioso eu ficava. Era como se tivesse alguma coisa em você me puxando sem eu perceber.</p>
+          <p>E sinceramente? Obrigado, Duda. Porque aquele foi provavelmente o maior acontecimento da minha vida inteira.</p>
+          <p>Só que o problema não foi o jeito que eu te conheci.</p>
+          <p>Foi a forma que eu resolvi começar a conversa.</p>
+          <p>Porque até hoje eu não consigo acreditar que minha primeira mensagem para você foi:</p>
+          <p>“Se a sua beleza fosse sono, eu ia querer ficar em coma.”</p>
+          <p>Meu Deus do céu.</p>
+          <p>Em que universo aquilo parecia uma boa ideia? Sksksksksk.</p>
+          <p>O pior é que eu lembro perfeitamente da confiança que eu estava sentindo quando escrevi aquilo. Na minha cabeça, eu tinha acabado de criar a cantada mais genial da história da humanidade. Eu realmente pensei “agora ela se apaixonou”. Só que olhando hoje… aquilo foi simplesmente um atentado contra o flerte kkkkk.</p>
+          <p>E mesmo assim você continuou falando comigo.</p>
+          <p>Novamente, tenho que agradecer a Duda por ter insistido para você me responder. Porque talvez sem ela eu nunca teria conhecido a mulher mais extraordinária, encantadora e fascinante que já apareceu na minha vida.</p>
+          <p>E obviamente minha falta de noção não parou ali.</p>
+          <p>Logo no começo das nossas conversas eu tive outra ideia brilhante: falar que tinha 27 anos. Honestamente, eu não sei o que era pior… a cantada do coma ou eu tentando pagar de homem maduro e misterioso. E você, mesmo sabendo claramente que era mentira, simplesmente entrou na brincadeira e continuou conversando comigo normalmente kkkkk. O mais engraçado é que nós simplesmente esquecemos disso depois. A mentira da idade ficou tão perdida no meio das nossas conversas, das piadas e da nossa conexão, que parecia só mais um detalhe aleatório da nossa história caótica.</p>
+          <p>Talvez naquele momento você já tivesse percebido que eu era completamente sem noção, mas decidiu continuar mesmo assim.</p>
+          <p>E graças a todas e qualquer entidade existente você continuou.</p>
+          <p>Porque desde as nossas primeiras conversas eu já estava completamente encantado por você. E o mais doido é que tudo isso começou antes mesmo da gente se conhecer pessoalmente. Primeiro vieram os seus olhos, que tinham me prendido desde as fotos no Instagram. Depois veio o seu sorriso. Depois o seu cabelo. Depois os penteados que você fazia. E conforme eu via mais de você e conversava mais com você, eu fui percebendo que sua beleza era só o começo.</p>
+          <p>Mas aí aconteceu uma coisa que me pegou completamente desprevenido: eu comecei a me apaixonar pelo seu jeito.</p>
+          <p>E isso foi ainda pior.</p>
+          <p>Porque beleza chama atenção. Mas essência prende.</p>
+          <p>E você tem uma essência absurda.</p>
+          <p>Você é uma mulher cheia de sonhos, ambições, ideias, esperança, sensibilidade e amor. Quanto mais eu conversava com você, mais eu queria continuar conversando. Quanto mais eu conhecia você, mais eu percebia o quão rara você é. Você tem um jeito único de enxergar o mundo. Um jeito delicado, engraçado, espontâneo e ao mesmo tempo tão intenso.</p>
+          <p>Você é delicada e desengonçada ao mesmo tempo, e sinceramente? Eu nunca vi alguém conseguir ser as duas coisas de um jeito tão encantador.</p>
+          <p>E então chegou o nosso primeiro encontro.</p>
+          <p>Ou melhor…</p>
+          <p>Nosso protótipo de encontro kkkkk.</p>
+          <p>Nós fomos nos encontrar no shopping, que já é um dos lugares mais caóticos possíveis para conhecer alguém pela primeira vez. Só que obviamente eu precisava piorar a situação.</p>
+          <p>Então tive a brilhante ideia de chegar silenciosamente atrás de você e mandar uma mensagem no WhatsApp:</p>
+          <p>“Estou atrás de você.”</p>
+          <p>Hoje isso parece engraçado, mas pensando racionalmente… imagina o medo. Uma garota encontrando pela primeira vez um homem que conheceu pela internet e recebendo uma mensagem dessas. Eu sinceramente teria saído correndo.</p>
+          <p>Mas você não correu.</p>
+          <p>Talvez por coragem, talvez por choque, talvez porque seu cérebro desligou de medo kkkkk.</p>
+          <p>Na hora em que viu a mensagem e olhou para trás rapidamente, dava para perceber um certo medo no seu olhar kkkkk. E assim, Totalmente compreensível. Imagina a situação: um homem que claramente mentiu a própria idade simplesmente aparecendo atrás de você pela primeira vez.</p>
+          <p>Mesmo assim, aquele momento ficou eternizado em mim. Porque foi ali que eu percebi que a nossa conexão não existia só pelas telas. Ela era real. Durante todas aquelas conversas intermináveis no shopping, enquanto a gente andava de um lado para o outro falando literalmente sobre qualquer assunto possível, eu senti que tudo encaixava de um jeito muito natural. E foi no meio dessas conversas que eu finalmente te falei minha verdadeira idade kkkkk.</p>
+          <p>Eu acho que ao longo do tempo você foi descobrindo que eu sou uma verdadeira máquina de assunto. Porque até hoje eu não faço ideia de como eu consigo puxar tanta conversa diferente sem ficar um segundo em silêncio kkkkk.</p>
+          <p>Foi o primeiro instante em que eu pude olhar para você pessoalmente. O primeiro momento em que eu vi seus olhos de perto. O primeiro momento em que ouvi sua voz sem ser por áudio.</p>
+          <p>E naquele instante eu percebi uma coisa:</p>
+          <p>Você era ainda mais incrível pessoalmente.</p>
+          <p>E enquanto mais a gente conversava, mais eu te conhecia. E quanto mais eu te conhecia, mais eu te amava.</p>
+          <p>Mas então aconteceu uma situação que mexeu muito comigo.</p>
+          <p>Eu fui te ver no trabalho pela primeira vez.</p>
+          <p>Na minha cabeça aquilo fazia sentido, porque eu sentia que nós já estávamos muito próximos. Só que naquele dia você falou coisas sobre a sua vida, sobre sentir que existia apenas para proporcionar experiências para outras pessoas, que achava que nunca iria me namorar, que achava que nunca ia namorar ninguém e aquilo me atingiu profundamente.</p>
+          <p>Porque enquanto você falava, eu conseguia sentir sua dor.</p>
+          <p>E ao mesmo tempo… eu me senti rejeitado.</p>
+          <p>Não porque você fez algo errado. Porque você não fez absolutamente nada de errado. Você apenas foi sincera comigo. Apenas abriu seu coração e falou o que sentia.</p>
+          <p>Mas eu, no meu excesso de sentimento, interpretei tudo errado.</p>
+          <p>E aquilo me destruiu.</p>
+          <p>Porque na minha cabeça eu estava perdendo você.</p>
+          <p>Então comecei a tentar moldar meu coração para aprender a viver sem sua presença. Tentei me convencer de que precisava me afastar emocionalmente. Tentei agir como alguém racional.</p>
+          <p>Mas eu nunca consegui.</p>
+          <p>Porque mesmo tentando me afastar, meu coração continuava indo em direção a você, nós pensamos, nas fotos e nas lágrimas.</p>
+          <p>E eu acho que aquela distância machucou nós dois.</p>
+          <p>Mesmo depois de termos falado que nos amávamos, ainda existia medo, insegurança e confusão. Foi um período muito difícil para mim, porque eu já tinha entendido uma coisa que não tinha mais volta:</p>
+          <p>Você não era passageira.</p>
+          <p>Você já tinha se tornado parte da minha vida.</p>
+          <p>O tempo passou.</p>
+          <p>Continuamos saindo juntos, vivendo momentos incríveis, colecionando memórias e fortalecendo ainda mais nossa conexão. Fomos ao dentista juntos kkkk, fomos ao parque, fomos ao Hopi Hari, fomos incontáveis vezes ao shopping onde nos vimos pela primeira vez, passeamos até pela Liberdade (minha primeira vez naquele lugar caótico não poderia ter cido melhor) e vivemos tantos outros momentos que ficaram eternizados em mim.</p>
+          <p>E é engraçado pensar nisso, porque muitos dos nossos melhores momentos nem foram coisas grandiosas.</p>
+          <p>Foram momentos simples.</p>
+          <p>Conversas.</p>
+          <p>Risadas.</p>
+          <p>Abraços demorados.</p>
+          <p>Olhares.</p>
+          <p>Pequenos detalhes.</p>
+          <p>E com certeza o selinho mais demorado da sua vida kkkkk.</p>
+          <p>E talvez seja justamente isso que torna tudo tão especial.</p>
+          <p>Porque com você até os momentos comuns parecem extraordinários.</p>
+          <p>Só que enquanto tudo isso acontecia… existia uma coisa martelando minha cabeça constantemente:</p>
+          <p>O pedido de namoro.</p>
+          <p>Porque eu queria que fosse perfeito.</p>
+          <p>E esse foi meu maior erro.</p>
+          <p>Eu tenho essa mania terrível de querer transformar tudo em algo inesquecível. E quando sinto que falta algum detalhe, eu adio. Vou empurrando. Vou esperando o “momento ideal”.</p>
+          <p>E eu sei que isso te frustrou.</p>
+          <p>Na verdade, olhando hoje, eu fui muito bobo kkkkk.</p>
+          <p>Teve aquele dia em que você estava simplesmente deslumbrante. Sério. Você estava absurdamente linda. E eu sei que no fundo você achou que eu finalmente iria te pedir em namoro.</p>
+          <p>E eu também pensei nisso.</p>
+          <p>Mas na minha cabeça ainda faltavam coisas. Ainda não estava “perfeito”. E então deixei o momento passar.</p>
+          <p>Você chegou ao ponto de me perguntar quando eu iria te pedir em namoro.</p>
+          <p>E o pior:</p>
+          <p>Cogitou até me pedir em namoro primeiro kkkkk.</p>
+          <p>Eu realmente merecia alguns puxões de orelha.</p>
+          <p>Mas quando finalmente aconteceu… aconteceu do nosso jeito.</p>
+          <p>Imperfeito, espontâneo, emocionante. Nosso.</p>
+          <p>Planejei tudo da melhor maneira possível, mesmo que nada tenha saído exatamente como imaginei. Tivemos nosso primeiro encontro “de verdade”. Te levei em um restaurante que por fora parecia meio suspeito kkkkk, mas por dentro era bonitinho até.</p>
+          <p>Depois fomos andar pelo shopping.</p>
+          <p>Te levei para a parte de cima do estacionamento e te mostrei um lugar lá ao longe. Você nem imaginava que eu te levaria até lá. Ainda não acredito que fiz você andar até lá kkkk. E enquanto você andava te mostrei uma vista que na minha cabeça era bem melhor, mas, sem desconfiar de absolutamente nada, existia um par de alianças escondido no meu bolso durante o encontro inteiro.</p>
+          <p>Meu coração parecia que ia sair do peito.</p>
+          <p>Minhas mãos estavam tremendo.</p>
+          <p>Minha cabeça estava a mil.</p>
+          <p>Até que eu ajoelhei.</p>
+          <p>Olhei para você.</p>
+          <p>E fiz a pergunta mais importante da minha vida:</p>
+          <p>“Monique, você aceita namorar comigo?”</p>
+          <p>E então veio o seu “SIM!!”.</p>
+          <p>Mas não foi apenas um “sim”.</p>
+          <p>Foi um “SIM!!” cheio de emoção.</p>
+          <p>Cheio de amor.</p>
+          <p>Cheio de verdade.</p>
+          <p>Foi o &quot;SIM!!” de alguém que realmente ansiava por aquele momento.</p>
+          <p>E logo depois você me abraçou e disse a frase que nunca mais saiu do meu coração:</p>
+          <p>“Eu sou a menina mais feliz do mundo.”</p>
+          <p>Toda vez que lembro disso, meu peito se enche de alegria.</p>
+          <p>Porque talvez você não perceba… mas desde aquele dia eu tento, todos os dias, fazer de tudo para que isso continue sendo verdade.</p>
+          <p>Eu quero que você tenha orgulho de mim.</p>
+          <p>Orgulho de me chamar de namorado.</p>
+          <p>E futuramente… quem sabe… de esposo.</p>
+          <p>Depois marido.</p>
+          <p>Porque eu quero construir uma vida ao seu lado.</p>
+          <p>Quero nossa casa.</p>
+          <p>Quero nossas conquistas.</p>
+          <p>Quero nossas viagens.</p>
+          <p>Quero nossas risadas no meio da madrugada.</p>
+          <p>Quero nossos momentos bobos.</p>
+          <p>Quero nossas conversas sinceras depois dos dias difíceis.</p>
+          <p>Quero continuar jogando Minecraft, Overcooked e muitos outros jogos com você, porque até esses momentos simples acabam se tornando únicos quando estou ao seu lado. São pequenas coisas assim que fazem toda a diferença para mim.</p>
+          <p>Quero envelhecer com você.</p>
+          <p>Quero que mesmo nos momentos ruins nós nunca deixemos de conversar, de nos ouvir e de tentar entender um ao outro.</p>
+          <p>Porque amar você não é apenas sentir algo bonito.</p>
+          <p>É sentir que finalmente encontrei alguém extraordinário para dividir a vida inteira.</p>
+          <p>Se eu pudesse voltar naquele momento em que a Duda me mostrou seu Instagram… eu mandaria aquela mensagem horrível do coma de novo.</p>
+          <p>Porque no final de tudo, ela me trouxe até você.</p>
+          <p>E isso fez valer absolutamente tudo.</p>
+          <p>Eu te amo, Monique. ❤️</p>
+          <p>E para consertar a cagada terrível de ter errado o mês do nosso aniversário de namoro no mês passado, aqui vão 70 motivos do porque eu te amo. Espero que goste S2</p>
+          <p class="reason">1. Porque o seu sorriso consegue melhorar qualquer dia meu.</p>
+          <p class="reason">2. O formato e o jeito que seus olhos mudam de côr durante o dia é sensacional.</p>
+          <p class="reason">3. Amo seu jeito de se expressar comigo.</p>
+          <p class="reason">4. Porque você me entende até quando eu não sei me explicar.</p>
+          <p class="reason">5. Porque você sempre me apoiou em tudo.</p>
+          <p class="reason">6. Porque você me faz sentir amado nos detalhes.</p>
+          <p class="reason">7. Porque eu admiro o quanto você é esforçada.</p>
+          <p class="reason">8. Porque você nunca desiste fácil das coisas.</p>
+          <p class="reason">9. Porque eu amo ouvir você falando dos seus sonhos.</p>
+          <p class="reason">10. Porque eu vejo um futuro lindo em você.</p>
+          <p class="reason">11. Porque nossa conexão aconteceu de um jeito muito natural.</p>
+          <p class="reason">12. Porque pessoalmente você conseguiu ser ainda mais incrível do que eu imaginava.</p>
+          <p class="reason">13. Porque você transformou momentos simples em lembranças inesquecíveis.</p>
+          <p class="reason">14. Porque até ir ao dentista ficou divertido com você.</p>
+          <p class="reason">15. Porque eu amo nossas idas para o shopping.</p>
+          <p class="reason">16. Porque o Hopi Hari foi mil vezes melhor ao seu lado.</p>
+          <p class="reason">17. Porque eu amo criar memórias com você.</p>
+          <p class="reason">18. Porque você consegue deixar qualquer lugar mais leve.</p>
+          <p class="reason">19. Porque o seu abraço me traz paz.</p>
+          <p class="reason">20. Porque eu me sinto em casa quando estou com você.</p>
+          <p class="reason">21. Porque você me faz rir de verdade.</p>
+          <p class="reason">22. Porque até o seu jeito de reclamar é fofo.</p>
+          <p class="reason">23. Porque eu amo quando você fica feliz com coisas simples.</p>
+          <p class="reason">24. Porque mesmo eu sendo complicado você não me deixou.</p>
+          <p class="reason">25. Porque eu admiro o quanto você se dedicou na montagem da loja.</p>
+          <p class="reason">26. Porque mesmo cansada você continuou firme.</p>
+          <p class="reason">27. Porque você passou por momentos difíceis sem perder o brilho.</p>
+          <p class="reason">28. Porque eu admiro sua força.</p>
+          <p class="reason">29. Porque você é linda naturalmente.</p>
+          <p class="reason">30. Porque o seu cabelo é perfeito.</p>
+          <p class="reason">31. Porque eu nunca me canso de olhar para você.</p>
+          <p class="reason">32. Porque você tem um carisma absurdo.</p>
+          <p class="reason">33. Porque você ilumina os lugares onde chega.</p>
+          <p class="reason">34. Porque você faz eu querer ser alguém melhor.</p>
+          <p class="reason">35. Porque você acredita em mim.</p>
+          <p class="reason">36. Porque você comemora minhas conquistas como se fossem suas.</p>
+          <p class="reason">37. Porque você me transmite segurança.</p>
+          <p class="reason">38. Porque eu amo conversar com você sobre qualquer assunto.</p>
+          <p class="reason">39. Porque você consegue deixar até o silêncio confortável.</p>
+          <p class="reason">40. Porque eu amo a nossa história.</p>
+          <p class="reason">41. Porque você apareceu no momento certo da minha vida.</p>
+          <p class="reason">42. Porque você sempre ri das minhas piadas mesmo sendo sem graça.</p>
+          <p class="reason">43. Porque eu amo a intecicidade que você demostra seu amor.</p>
+          <p class="reason">44. Porque você repara em cada detalhe meu até nas pequenas coisas que eu falo.</p>
+          <p class="reason">45. Porque você faz meus piores dias serem melhores.</p>
+          <p class="reason">46. Porque você consegue me deixar mais leve apenas me abraçando.</p>
+          <p class="reason">47. Porque eu amo o seu jeito espontâneo.</p>
+          <p class="reason">48. Porque você é única.</p>
+          <p class="reason">49. Porque você me inspira sem nem perceber.</p>
+          <p class="reason">50. Porque eu tenho orgulho da mulher que você está se tornando.</p>
+          <p class="reason">51. Porque você faz eu acreditar mais em mim mesmo.</p>
+          <p class="reason">52. Porque eu amo o jeito que você cuida de mim.</p>
+          <p class="reason">53. Porque eu amo seu beijo.</p>
+          <p class="reason">54. Porque você fez minha vida mudar para melhor.</p>
+          <p class="reason">55. Porque eu amo cada momento ao seu lado.</p>
+          <p class="reason">56. Porque você me mostrou o que é amar alguém de verdade.</p>
+          <p class="reason">57. Porque eu amo chamar você de minha namorada.</p>
+          <p class="reason">58. Porque eu consigo imaginar meu futuro com você.</p>
+          <p class="reason">59. Porque você é minha pessoa favorita no mundo.</p>
+          <p class="reason">60. Porque você é você, Monique… e isso já é motivo suficiente para eu te amar todos os dias. ❤️</p>
+          <p class="reason">61. Porque até as suas inseguranças fazem eu querer cuidar mais de você.</p>
+          <p class="reason">62. Porque eu amo o jeito desengonçado e delicado que só você consegue ter ao mesmo tempo.</p>
+          <p class="reason">63. Porque você teve paciência comigo mesmo depois das minhas cantadas horríveis kkkkk.</p>
+          <p class="reason">64. Porque você não desistiu de mim mesmo percebendo desde cedo que eu era meio sem noção.</p>
+          <p class="reason">65. Porque você consegue transformar um simples passeio em um momento especial.</p>
+          <p class="reason">66. Porque você sempre quer passar seu tempo comigo.</p>
+          <p class="reason">67. Porque você faz meu coração acelerar mesmo depois de meses juntos (67).</p>
+          <p class="reason">68. Porque eu admiro a forma sincera como você demonstra o que sente.</p>
+          <p class="reason">69. Porque você consegue se sentir confortável comigo.</p>
+          <p class="reason">70. Porque amar você foi a coisa mais natural e mais bonita que já aconteceu comigo. ❤️</p>
+      </div>
+    </section>
+  </main>
+
+
+  <script>
+    const floatingLayer = document.getElementById("floatingLayer");
+    const startScreen = document.getElementById("startScreen");
+    const startButton = document.getElementById("startButton");
+    const letterBox = document.getElementById("letterBox");
+    const photoInput = document.getElementById("photoInput");
+    const message = document.getElementById("message");
+    const mainHeart = document.getElementById("mainHeart");
+
+    let started = false;
+    let heartTimer = null;
+    let photoTimer = null;
+    let selectedPhotos = [];
+
+    const fotosFixas = [
+      "fotos/foto1.jpeg",
+      "fotos/foto2.jpeg",
+      "fotos/foto3.jpeg",
+      "fotos/foto4.jpeg",
+      "fotos/foto5.jpeg",
+      "fotos/foto6.jpeg",
+      "fotos/foto7.jpeg",
+      "fotos/foto8.jpeg",
+      "fotos/foto9.jpeg",
+      "fotos/foto10.jpeg",
+      "fotos/foto11.jpeg",
+      "fotos/foto12.jpeg",
+      "fotos/foto13.jpeg",
+      "fotos/foto14.jpeg",
+      "fotos/foto15.jpeg",
+      "fotos/foto16.jpeg",
+      "fotos/foto17.jpeg",
+      "fotos/foto18.jpeg",
+      "fotos/foto19.jpeg",
+      "fotos/foto20.jpeg",
+      "fotos/foto21.jpeg",
+      "fotos/foto22.jpeg",
+      "fotos/foto23.jpeg",
+      "fotos/foto24.jpeg",
+      "fotos/foto25.jpeg",
+      "fotos/foto26.jpeg",
+      "fotos/foto27.jpeg",
+      "fotos/foto28.jpeg",
+      "fotos/foto29.jpeg",
+      "fotos/foto30.jpeg",
+      "fotos/foto31.jpeg",
+      "fotos/foto32.jpeg",
+      "fotos/foto33.jpeg",
+      "fotos/foto34.jpeg",
+      "fotos/foto35.jpeg",
+      "fotos/foto36.jpeg"
+    ];
+
+    function rand(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function randomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function heartPoint(t, scaleX = 1, scaleY = 1) {
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+      return { x: x * scaleX, y: -y * scaleY };
+    }
+
+    // coração principal como na primeira versão
+    function createMainHeart() {
+      mainHeart.innerHTML = "";
+      const mobile = window.innerWidth <= 760;
+      const total = mobile ? 76 : 92;
+
+      for (let i = 0; i < total; i++) {
+        const t = (Math.PI * 2 * i) / total;
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+
+        const span = document.createElement("span");
+        span.className = "heart-word";
+        span.textContent = "i love you";
+
+        const left = 50 + x * (mobile ? 2.25 : 2.5);
+        const top = 51 - y * (mobile ? 2.55 : 2.8);
+
+        span.style.left = `${left}%`;
+        span.style.top = `${top}%`;
+        span.style.animationDelay = `${(i % 12) * 0.1}s`;
+
+        mainHeart.appendChild(span);
+      }
+    }
+
+    // pequenos corações no estilo novo
+    function createSmallHeart() {
+      const el = document.createElement("div");
+      el.className = "floating-heart";
+
+      const mobile = window.innerWidth <= 760;
+      const size = mobile ? rand(80, 125) : rand(95, 150);
+      const left = mobile ? rand(-2, 80) : rand(0, 85);
+      const duration = rand(20, 30);
+      const drift = mobile ? rand(-28, 28) : rand(-45, 45);
+      const startRot = rand(-8, 8);
+      const endRot = startRot + rand(-16, 16);
+
+      el.style.setProperty("--size", `${size}px`);
+      el.style.setProperty("--left", `${left}vw`);
+      el.style.setProperty("--duration", `${duration}s`);
+      el.style.setProperty("--drift", `${drift}px`);
+      el.style.setProperty("--start-rot", `${startRot}deg`);
+      el.style.setProperty("--end-rot", `${endRot}deg`);
+
+      const core = document.createElement("div");
+      core.className = "heart-core";
+      core.textContent = "♥";
+      el.appendChild(core);
+
+      const count = mobile ? 18 : 24;
+      for (let i = 0; i < count; i++) {
+        const t = (Math.PI * 2 * i) / count;
+        const p1 = heartPoint(t, size * 0.020, size * 0.022);
+        const p2 = heartPoint(t + 0.04, size * 0.020, size * 0.022);
+        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+
+        const w = document.createElement("span");
+        w.className = "heart-word";
+        w.textContent = "i love you";
+        w.style.setProperty("--x", `${p1.x}px`);
+        w.style.setProperty("--y", `${p1.y}px`);
+        w.style.setProperty("--angle", `${angle}deg`);
+        el.appendChild(w);
+      }
+
+      floatingLayer.appendChild(el);
+      setTimeout(() => el.remove(), duration * 1000 + 600);
+    }
+
+    function createPhoto() {
+      const photo = document.createElement("div");
+      photo.className = "floating-photo";
+
+      const mobile = window.innerWidth <= 760;
+      const size = mobile ? rand(72, 100) : rand(80, 112);
+      const left = mobile ? rand(5, 72) : rand(5, 82);
+      const duration = rand(22, 33);
+      const drift = mobile ? rand(-20, 20) : rand(-32, 32);
+      const startRot = rand(-8, 8);
+      const endRot = startRot + rand(-14, 14);
+
+      photo.style.setProperty("--size", `${size}px`);
+      photo.style.setProperty("--left", `${left}vw`);
+      photo.style.setProperty("--duration", `${duration}s`);
+      photo.style.setProperty("--drift", `${drift}px`);
+      photo.style.setProperty("--start-rot", `${startRot}deg`);
+      photo.style.setProperty("--end-rot", `${endRot}deg`);
+
+      const img = new Image();
+
+      if (selectedPhotos.length > 0) {
+        img.src = randomItem(selectedPhotos);
+        photo.appendChild(img);
+      } else {
+        const src = randomItem(fotosFixas);
+        img.src = src;
+        img.onload = () => {
+          photo.innerHTML = "";
+          photo.appendChild(img);
+        };
+        img.onerror = () => {
+          photo.innerHTML = "<span>coloque uma foto aqui ❤️</span>";
+        };
+      }
+
+      floatingLayer.appendChild(photo);
+      setTimeout(() => photo.remove(), duration * 1000 + 600);
+    }
+
+    function burst() {
+      for (let i = 0; i < 4; i++) {
+        setTimeout(createSmallHeart, i * 420);
+      }
+      for (let i = 0; i < 2; i++) {
+        setTimeout(createPhoto, i * 900);
+      }
+    }
+
+    function startAnimation() {
+      if (started) return;
+      started = true;
+      document.body.classList.add("started");
+      startScreen.classList.add("hide");
+
+      burst();
+
+      // menos fotos, foco no texto no celular
+      heartTimer = setInterval(createSmallHeart, 1900);
+      photoTimer = setInterval(createPhoto, 5200);
+    }
+
+    startButton.addEventListener("click", startAnimation);
+
+    letterBox.addEventListener("click", () => {
+      const paused = message.style.animationPlayState === "paused";
+      message.style.animationPlayState = paused ? "running" : "paused";
+    });
+
+    photoInput.addEventListener("change", (event) => {
+      selectedPhotos = [...event.target.files].map(file => URL.createObjectURL(file));
+      for (let i = 0; i < 2; i++) {
+        setTimeout(createPhoto, i * 700);
+      }
+    });
+
+    window.addEventListener("resize", createMainHeart);
+
+    createMainHeart();
+  </script>
+</body>
+</html>
