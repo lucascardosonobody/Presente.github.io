@@ -445,6 +445,7 @@
     </div>
   </section>
 
+  <div class="top-title">7 meses com você ❤️</div>
 
   <div class="floating-layer" id="floatingLayer"></div>
 
@@ -657,6 +658,10 @@
     </section>
   </main>
 
+  <div class="photo-loader">
+    <label for="photoInput">Escolher fotos</label>
+    <input type="file" id="photoInput" accept="image/*" multiple>
+  </div>
 
   <script>
     const floatingLayer = document.getElementById("floatingLayer");
@@ -673,42 +678,42 @@
     let selectedPhotos = [];
 
     const fotosFixas = [
-      "fotos/foto1.jpeg",
-      "fotos/foto2.jpeg",
-      "fotos/foto3.jpeg",
-      "fotos/foto4.jpeg",
-      "fotos/foto5.jpeg",
-      "fotos/foto6.jpeg",
-      "fotos/foto7.jpeg",
-      "fotos/foto8.jpeg",
-      "fotos/foto9.jpeg",
-      "fotos/foto10.jpeg",
-      "fotos/foto11.jpeg",
-      "fotos/foto12.jpeg",
-      "fotos/foto13.jpeg",
-      "fotos/foto14.jpeg",
-      "fotos/foto15.jpeg",
-      "fotos/foto16.jpeg",
-      "fotos/foto17.jpeg",
-      "fotos/foto18.jpeg",
-      "fotos/foto19.jpeg",
-      "fotos/foto20.jpeg",
-      "fotos/foto21.jpeg",
-      "fotos/foto22.jpeg",
-      "fotos/foto23.jpeg",
-      "fotos/foto24.jpeg",
-      "fotos/foto25.jpeg",
-      "fotos/foto26.jpeg",
-      "fotos/foto27.jpeg",
-      "fotos/foto28.jpeg",
-      "fotos/foto29.jpeg",
-      "fotos/foto30.jpeg",
-      "fotos/foto31.jpeg",
-      "fotos/foto32.jpeg",
-      "fotos/foto33.jpeg",
-      "fotos/foto34.jpeg",
-      "fotos/foto35.jpeg",
-      "fotos/foto36.jpeg"
+      "foto1.jpeg",
+      "foto2.jpeg",
+      "foto3.jpeg",
+      "foto4.jpeg",
+      "foto5.jpeg",
+      "foto6.jpeg",
+      "foto7.jpeg",
+      "foto8.jpeg",
+      "foto9.jpeg",
+      "foto10.jpeg",
+      "foto11.jpeg",
+      "foto12.jpeg",
+      "foto13.jpeg",
+      "foto14.jpeg",
+      "foto15.jpeg",
+      "foto16.jpeg",
+      "foto17.jpeg",
+      "foto18.jpeg",
+      "foto19.jpeg",
+      "foto20.jpeg",
+      "foto21.jpeg",
+      "foto22.jpeg",
+      "foto23.jpeg",
+      "foto24.jpeg",
+      "foto25.jpeg",
+      "foto26.jpeg",
+      "foto27.jpeg",
+      "foto28.jpeg",
+      "foto29.jpeg",
+      "foto30.jpeg",
+      "foto31.jpeg",
+      "foto32.jpeg",
+      "foto33.jpeg",
+      "foto34.jpeg",
+      "foto35.jpeg",
+      "foto36.jpeg"
     ];
 
     function rand(min, max) {
