@@ -787,7 +787,8 @@ function worldToScreen(x,y){
 }
 
 function strangeSixthHeartActive(){
-  return activeHeart && activeHeart.order === 6;
+  // O 6º coração agora não muda o cenário.
+  return false;
 }
 
 function invisibleHeartChallengeActive(){
@@ -1187,15 +1188,6 @@ function spawnNextHeart(){
     speechBubbleTimer = 300;
   }
 
-  // Coração 6: o mundo fica estranho, as fotos somem e a música para.
-  if(activeHeart && activeHeart.order === 6){
-    if(!strangeModeMusicStopped){
-      stopMusic();
-      strangeModeMusicStopped = true;
-    }
-    speechBubbleText = 'O QUE ESTÁ ACONTECENDO?!?!?!!?';
-    speechBubbleTimer = 420;
-  }
 }
 
 function resetHearts(){
@@ -1410,6 +1402,11 @@ function update(){
     if(currentHeartIndex === 1){
       speechBubbleText = 'onde estão os outros corações? vou ter que procurar!';
       speechBubbleTimer = 260;
+    }
+
+    if(currentHeartIndex === 6){
+      speechBubbleText = 'nada mudou...';
+      speechBubbleTimer = 300;
     }
 
     if(currentHeartIndex >= HEART_TOTAL){
