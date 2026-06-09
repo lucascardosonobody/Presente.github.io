@@ -291,14 +291,14 @@ const islands = [
   {x:8456, y:600, w:98, h:26},
   {x:8736, y:690, w:98, h:26},
 
-  // plataformas extremamente difíceis, mas acessíveis com pulo preciso
-  {x:1292, y:532, w:86, h:26, hard:true},
-  {x:2612, y:528, w:86, h:26, hard:true},
-  {x:3892, y:532, w:86, h:26, hard:true},
-  {x:5172, y:528, w:86, h:26, hard:true},
-  {x:6452, y:532, w:86, h:26, hard:true},
-  {x:7732, y:528, w:86, h:26, hard:true},
-  {x:8952, y:560, w:86, h:26, hard:true}
+  // plataformas extremamente difíceis, mas agora dentro do limite real do pulo
+  {x:1296, y:552, w:78, h:24, hard:true},
+  {x:2616, y:552, w:78, h:24, hard:true},
+  {x:3896, y:552, w:78, h:24, hard:true},
+  {x:5176, y:552, w:78, h:24, hard:true},
+  {x:6456, y:552, w:78, h:24, hard:true},
+  {x:7736, y:552, w:78, h:24, hard:true},
+  {x:8956, y:560, w:78, h:24, hard:true}
 ];
 
 // Plataformas do fundo, acessíveis e reposicionadas para apoiar os corações.
@@ -343,7 +343,7 @@ let forcedHardHeartDone = false;
 const collectedHearts = [];
 
 const portal = { x: 8990, y: groundY-116, w: 64, h: 96 };
-const checkpoints = [35, 1325, 2575, 3800, 5050, 6325, 7650];
+const checkpoints = [35, 1340, 2620, 3810, 5060, 6335, 7660];
 
 const decoTrees = Array.from({length: 78}, (_,i)=> ({
   x:60 + i*118 + ((i%4)*12),
@@ -481,13 +481,13 @@ const platformDecos = [
   {x:8762, y:684, kind:'flower', size:0.62},
 
   // marcas discretas nas plataformas difíceis
-  {x:1315, y:526, kind:'heart', size:0.55},
-  {x:2635, y:522, kind:'heart', size:0.55},
-  {x:3915, y:526, kind:'heart', size:0.55},
-  {x:5195, y:522, kind:'heart', size:0.55},
-  {x:6475, y:526, kind:'heart', size:0.55},
-  {x:7755, y:522, kind:'heart', size:0.55},
-  {x:8975, y:554, kind:'heart', size:0.55}
+  {x:1318, y:546, kind:'heart', size:0.52},
+  {x:2638, y:546, kind:'heart', size:0.52},
+  {x:3918, y:546, kind:'heart', size:0.52},
+  {x:5198, y:546, kind:'heart', size:0.52},
+  {x:6478, y:546, kind:'heart', size:0.52},
+  {x:7758, y:546, kind:'heart', size:0.52},
+  {x:8978, y:554, kind:'heart', size:0.52}
 ];
 
 totalEl.textContent = HEART_TOTAL;
@@ -765,7 +765,7 @@ function heartSurfaceCandidates(){
     ...islands.map(s => ({...s, kind:'island'})),
     ...rearIslands.map(s => ({...s, kind:'rearIsland'}))
   ].filter(s =>
-    s.w >= 70 &&
+    s.w >= 68 &&
     s.x < portal.x + 80
   );
 }
@@ -775,7 +775,7 @@ function randomBetween(min, max){
 }
 
 function makeHeartOnSurface(surface, order){
-  const margin = Math.min(24, Math.max(12, surface.w * 0.18));
+  const margin = Math.min(20, Math.max(10, surface.w * 0.16));
   const minX = surface.x + margin;
   const maxX = surface.x + surface.w - margin;
   const x = randomBetween(minX, Math.max(minX, maxX));
@@ -819,7 +819,7 @@ function chooseHardHeartPosition(){
 
   const pool = farHard.length ? farHard : hardSurfaces;
 
-  // Escolhe uma das plataformas difíceis e coloca o coração no centro,
+  // Escolhe uma das plataformas difíceis acessíveis e coloca o coração no centro,
   // para garantir que pelo menos um coração realmente nasça nela.
   const surface = pool[Math.floor(Math.random() * pool.length)];
   return {
@@ -995,11 +995,55 @@ function hitSpike(){
   return false;
 }
 
+function positionHitsSpike(x, y){
+  const hurt = {x:x+8, y:y+12, w:player.w-16, h:player.h-14};
+  return spikes.some(sp => rects(hurt, sp));
+}
+
+function groundForRespawn(x){
+  const center = x + player.w/2;
+  let ground = groundSegments.find(g => center >= g.x && center <= g.x + g.w);
+
+  if(!ground){
+    ground = groundSegments
+      .slice()
+      .sort((a,b) => Math.abs((a.x+a.w/2)-center) - Math.abs((b.x+b.w/2)-center))[0];
+  }
+
+  return ground;
+}
+
 function respawn(){
-  player.x=player.checkpointX;
-  player.y=groundY-player.h;
-  player.vx=0;
-  player.vy=0;
+  const ground = groundForRespawn(player.checkpointX);
+  let safeX = Math.max(ground.x + 10, Math.min(player.checkpointX, ground.x + ground.w - player.w - 10));
+  const safeY = ground.y - player.h - 2;
+
+  // Evita renascer em cima de espinho. Primeiro tenta ir para a direita, depois para a esquerda.
+  let found = false;
+  for(let i=0;i<34;i++){
+    const rightX = Math.min(ground.x + ground.w - player.w - 10, safeX + i*12);
+    if(!positionHitsSpike(rightX, safeY)){
+      safeX = rightX;
+      found = true;
+      break;
+    }
+
+    const leftX = Math.max(ground.x + 10, safeX - i*12);
+    if(!positionHitsSpike(leftX, safeY)){
+      safeX = leftX;
+      found = true;
+      break;
+    }
+  }
+
+  player.x = safeX;
+  player.y = safeY;
+  player.vx = 0;
+  player.vy = 0;
+  player.ground = false;
+
+  // Se por algum motivo ainda encostar em bloco, a colisão vertical corrige no próximo frame.
+  collidePlayerY();
 }
 
 function update(){
