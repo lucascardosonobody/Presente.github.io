@@ -359,6 +359,7 @@ let activeHeart = null;
 let activeLoveHearts = [];
 let forcedHardHeartDone = false;
 let strangeModeMusicStopped = false;
+let grayWorldAfterSixth = false;
 
 // Modo final: começa quando ela pega o 7º coração.
 let finalVoidActive = false;
@@ -367,7 +368,7 @@ let finalVoidLoves = [];
 let finalVoidPortal = null;
 let finalVoidPortalUnlocked = false;
 let finalVoidPortalAnnounced = false;
-const FINAL_VOID_DARK_DELAY = 15000;
+const FINAL_VOID_DARK_DELAY = 10000;
 const FINAL_VOID_TEXT_DURATION = 7000;
 const FINAL_VOID_LOVE_TARGET = 2000;
 let finalVoidTextShown = false;
@@ -1077,10 +1078,11 @@ function enterFinalVoid(){
   finalVoidPortal = null;
   finalVoidPortalUnlocked = false;
   finalVoidPortalAnnounced = false;
-  finalVoidTextShown = false;
+  finalVoidTextShown = true;
 
   activeHeart = null;
   activeLoveHearts = [];
+  grayWorldAfterSixth = false;
   stopMusic();
 
   player.vx = 0;
@@ -1088,9 +1090,9 @@ function enterFinalVoid(){
   player.y = groundY - player.h;
   player.ground = true;
 
-  // No 7º coração: primeiro fica tudo escuro por 15 segundos.
-  speechBubbleText = '';
-  speechBubbleTimer = 0;
+  // 7º coração: ela fala automaticamente, depois de 10s começam os textos.
+  speechBubbleText = 'essa é a vida dele sem mim...';
+  speechBubbleTimer = 520;
 }
 
 function updateFinalVoid(){
@@ -1112,18 +1114,11 @@ function updateFinalVoid(){
   const target = player.x - W/(2*scale);
   cam.x += (target - cam.x) * 0.09;
 
-  // Primeiro: 15 segundos de tela completamente escura.
+  // Depois de 10 segundos da fala, começam a aparecer os "eu te amo".
   if(elapsed < FINAL_VOID_DARK_DELAY){
     if(speechBubbleTimer > 0) speechBubbleTimer--;
     frameTick++;
     return;
-  }
-
-  // Depois: aparece o texto.
-  if(!finalVoidTextShown){
-    finalVoidTextShown = true;
-    speechBubbleText = 'essa é a vida dele sem mim...';
-    speechBubbleTimer = 420;
   }
 
   const textElapsed = elapsed - FINAL_VOID_DARK_DELAY;
@@ -1196,6 +1191,7 @@ function resetHearts(){
   activeLoveHearts = [];
   forcedHardHeartDone = false;
   strangeModeMusicStopped = false;
+  grayWorldAfterSixth = false;
 
   finalVoidActive = false;
   finalVoidStart = 0;
@@ -1405,8 +1401,9 @@ function update(){
     }
 
     if(currentHeartIndex === 6){
-      speechBubbleText = 'nada mudou...';
-      speechBubbleTimer = 300;
+      grayWorldAfterSixth = true;
+      speechBubbleText = 'O QUE ESTÁ ACONTECENDO?!?!!?!?';
+      speechBubbleTimer = 420;
     }
 
     if(currentHeartIndex >= HEART_TOTAL){
@@ -2233,20 +2230,17 @@ function draw(){
     return;
   }
 
-  const strange = strangeSixthHeartActive();
+  const grayWorld = grayWorldAfterSixth;
 
   drawSky();
 
-  if(strange){
+  if(grayWorld){
     ctx.save();
-    ctx.filter = 'grayscale(55%) saturate(45%) brightness(88%)';
+    ctx.filter = 'grayscale(100%) saturate(0%) brightness(86%) contrast(92%)';
   }
 
   drawDeco();
-
-  // No sexto coração, as fotos somem.
-  if(!strange) drawPhotoSpots();
-
+  drawPhotoSpots();
   drawGroundSegments();
   drawRopes();
   drawLadders();
@@ -2258,9 +2252,15 @@ function draw(){
 
   if(activeLoveHearts.length) drawLoveStorm();
 
-  if(strange){
+  if(grayWorld){
     ctx.restore();
-    drawStrangeSixthOverlay();
+
+    // Camada cinza para deixar claro que o mundo perdeu a cor.
+    ctx.save();
+    ctx.globalAlpha = 0.20;
+    ctx.fillStyle = '#8d8d8d';
+    ctx.fillRect(0,0,W,H);
+    ctx.restore();
   }
 
   drawHearts();
