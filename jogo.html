@@ -13,18 +13,17 @@ canvas{display:block;width:100vw;height:100svh;image-rendering:pixelated}
 .pill{background:rgba(255,255,255,.44);color:#7a1d55;border:1px solid rgba(255,255,255,.6);border-radius:999px;padding:8px 11px;box-shadow:0 8px 22px rgba(180,75,135,.18);backdrop-filter:blur(6px)}
 .screen{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:22px;background:rgba(82,28,72,.35);backdrop-filter:blur(6px);transition:.5s ease}
 .screen.hide{opacity:0;pointer-events:none}
-.card{width:min(580px,92vw);padding:28px 22px;border-radius:28px;text-align:center;background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(255,234,247,.62));border:1px solid rgba(255,255,255,.74);box-shadow:0 18px 48px rgba(180,75,135,.25);color:#7a1d55}
+.card{width:min(580px,92vw);max-height:min(86svh,720px);overflow:auto;padding:28px 22px;border-radius:28px;text-align:center;background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(255,234,247,.62));border:1px solid rgba(255,255,255,.74);box-shadow:0 18px 48px rgba(180,75,135,.25);color:#7a1d55}
 .card h1{font-size:clamp(1.75rem,8.5vw,3.25rem);margin-bottom:12px;color:#d73588;text-shadow:0 0 12px rgba(255,255,255,.8)}
 .card p{line-height:1.55;color:rgba(78,25,62,.86);margin-bottom:16px;font-size:clamp(.92rem,3.8vw,1.03rem)}
 button{border:0;border-radius:999px;padding:13px 22px;background:linear-gradient(90deg,#ff5fa2,#ff8bc0);color:white;font-weight:900;font-size:1rem;box-shadow:0 10px 28px rgba(255,95,162,.32)}
 .controls{position:fixed;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom));z-index:12;display:flex;justify-content:space-between;padding:0 18px;pointer-events:none}
 .group{display:flex;gap:12px;pointer-events:auto}
-.ctrl{width:58px;height:58px;display:grid;place-items:center;padding:0;background:rgba(255,95,162,.52);border:1px solid rgba(255,255,255,.58);font-size:1.45rem;backdrop-filter:blur(5px)}
+.ctrl{width:58px;height:58px;display:grid;place-items:center;padding:0;background:rgba(255,95,162,.52);border:1px solid rgba(255,255,255,.58);font-size:1.45rem;backdrop-filter:blur(5px);touch-action:none}
 .jump{width:74px;height:74px;font-size:1.9rem;background:rgba(255,95,162,.66)}
-.music-btn{
+.music-btn,.next-music-btn{
   position:fixed;
   right:14px;
-  top:max(58px,calc(env(safe-area-inset-top) + 58px));
   z-index:14;
   width:auto;
   min-width:92px;
@@ -38,7 +37,89 @@ button{border:0;border-radius:999px;padding:13px 22px;background:linear-gradient
   box-shadow:0 8px 22px rgba(180,75,135,.18);
   backdrop-filter:blur(6px);
 }
+.music-btn{top:max(58px,calc(env(safe-area-inset-top) + 58px))}
+.next-music-btn{top:max(100px,calc(env(safe-area-inset-top) + 100px));background:rgba(255,139,192,.50)}
 .music-btn.off{background:rgba(120,80,120,.42)}
+
+@media (orientation:landscape) and (max-height:560px){
+  .hud{
+    top:max(6px,env(safe-area-inset-top));
+    width:min(620px,calc(100vw - 150px));
+    font-size:clamp(.62rem,1.6vw,.82rem);
+    gap:6px;
+  }
+  .pill{padding:6px 9px}
+  .screen{padding:8px 78px}
+  .card{
+    width:min(520px,76vw);
+    max-height:88svh;
+    padding:16px 18px;
+    border-radius:22px;
+  }
+  .card h1{
+    font-size:clamp(1.35rem,4.2vw,2.15rem);
+    margin-bottom:7px;
+  }
+  .card p{
+    font-size:clamp(.76rem,2vw,.9rem);
+    line-height:1.34;
+    margin-bottom:9px;
+  }
+  button{padding:10px 17px;font-size:.88rem}
+  .controls{
+    bottom:max(8px,env(safe-area-inset-bottom));
+    padding:0 10px;
+  }
+  .group{gap:8px}
+  .ctrl{
+    width:48px;
+    height:48px;
+    font-size:1.08rem;
+    background:rgba(255,95,162,.48);
+  }
+  .jump{
+    width:58px;
+    height:58px;
+    font-size:1.45rem;
+  }
+  .music-btn,.next-music-btn{
+    right:max(8px,env(safe-area-inset-right));
+    min-width:70px;
+    padding:7px 8px;
+    font-size:.68rem;
+  }
+  .music-btn{top:max(8px,env(safe-area-inset-top))}
+  .next-music-btn{top:max(42px,calc(env(safe-area-inset-top) + 42px))}
+}
+
+@media (orientation:landscape) and (max-height:420px){
+  .hud{
+    left:10px;
+    transform:none;
+    width:auto;
+    max-width:calc(100vw - 110px);
+    justify-content:flex-start;
+  }
+  .hud .pill:nth-child(2){display:none}
+  .screen{padding:6px 70px}
+  .card{
+    width:min(480px,72vw);
+    padding:12px 14px;
+    border-radius:18px;
+  }
+  .card h1{font-size:clamp(1.1rem,3.4vw,1.65rem)}
+  .card p{font-size:clamp(.68rem,1.75vw,.78rem);margin-bottom:7px}
+  .ctrl{width:42px;height:42px;font-size:.96rem}
+  .jump{width:52px;height:52px;font-size:1.25rem}
+}
+
+@media (orientation:portrait) and (max-width:420px){
+  .hud{font-size:clamp(.68rem,3vw,.86rem)}
+  .card{padding:22px 18px}
+  .ctrl{width:56px;height:56px}
+  .jump{width:70px;height:70px}
+}
+
 </style>
 </head>
 <body>
@@ -81,6 +162,7 @@ button{border:0;border-radius:999px;padding:13px 22px;background:linear-gradient
 </div>
 
 <button class="music-btn off" id="musicBtn">♪ música</button>
+<button class="next-music-btn" id="nextMusicBtn">↻ trocar</button>
 
 <script>
 const ARQUIVO_DA_SURPRESA = "index.html";
@@ -92,6 +174,7 @@ const totalEl = document.getElementById('total');
 const startScreen = document.getElementById('start');
 const endScreen = document.getElementById('end');
 const musicBtn = document.getElementById('musicBtn');
+const nextMusicBtn = document.getElementById('nextMusicBtn');
 
 const imgs = {
   player: new Image(),
@@ -139,7 +222,7 @@ imgs.islandMedium.src = "island_medium.png";
 imgs.islandLarge.src = "island_large.png";
 
 let W=0,H=0,DPR=1,scale=1,started=false,finished=false,frameTick=0,portalMessageTimer=0,speechBubbleTimer=0,speechBubbleText='';
-let audioCtx=null,musicOn=false,musicTimer=null,musicStep=0;
+let audioCtx=null,musicOn=false,musicTimer=null,musicStep=0,currentSongIndex=0;
 const keys = { left:false, right:false, jump:false };
 
 const world = { w: 18500, h: 900 };
@@ -490,24 +573,108 @@ const platformDecos = [
 totalEl.textContent = HEART_TOTAL;
 
 
-// Música original estilo jogo fofo/chiptune.
-// Não é música oficial do Kirby; é uma trilha simples criada no próprio código.
-const cuteSong = [
-  ['C5',0.14],['E5',0.14],['G5',0.14],['C6',0.28],
-  ['B5',0.14],['G5',0.14],['E5',0.14],['G5',0.28],
-  ['A5',0.14],['C6',0.14],['E6',0.14],['D6',0.28],
-  ['C6',0.14],['A5',0.14],['F5',0.14],['A5',0.28],
-
-  ['G5',0.14],['B5',0.14],['D6',0.14],['G6',0.28],
-  ['E6',0.14],['C6',0.14],['A5',0.14],['C6',0.28],
-  ['F5',0.14],['A5',0.14],['C6',0.14],['F6',0.28],
-  ['E6',0.14],['C6',0.14],['G5',0.14],['C6',0.34]
+// Playlist original estilo jogo fofo/chiptune.
+// Não é música oficial de nenhum jogo; são trilhas simples criadas no próprio código.
+const cutePlaylist = [
+  {
+    name: 'Estrelinha Rosa',
+    tempo: 138,
+    type: 'square',
+    gain: 0.038,
+    melody: [
+      ['C5',0.14],['E5',0.14],['G5',0.14],['C6',0.28],
+      ['B5',0.14],['G5',0.14],['E5',0.14],['G5',0.28],
+      ['A5',0.14],['C6',0.14],['E6',0.14],['D6',0.28],
+      ['C6',0.14],['A5',0.14],['F5',0.14],['A5',0.28],
+      ['G5',0.14],['B5',0.14],['D6',0.14],['G6',0.28],
+      ['E6',0.14],['C6',0.14],['A5',0.14],['C6',0.28],
+      ['F5',0.14],['A5',0.14],['C6',0.14],['F6',0.28],
+      ['E6',0.14],['C6',0.14],['G5',0.14],['C6',0.34]
+    ],
+    bass: [
+      ['C3',0.56],['G3',0.56],['A3',0.56],['F3',0.56],
+      ['G3',0.56],['C4',0.56],['F3',0.56],['G3',0.56]
+    ]
+  },
+  {
+    name: 'Jardim de Algodão',
+    tempo: 165,
+    type: 'triangle',
+    gain: 0.042,
+    melody: [
+      ['G5',0.16],['A5',0.16],['B5',0.16],['D6',0.22],
+      ['B5',0.16],['A5',0.16],['G5',0.16],['E5',0.22],
+      ['F5',0.16],['G5',0.16],['A5',0.16],['C6',0.22],
+      ['A5',0.16],['G5',0.16],['F5',0.16],['D5',0.22],
+      ['E5',0.16],['G5',0.16],['C6',0.16],['B5',0.22],
+      ['A5',0.16],['C6',0.16],['E6',0.16],['D6',0.26],
+      ['C6',0.16],['B5',0.16],['A5',0.16],['G5',0.22],
+      ['F5',0.16],['A5',0.16],['G5',0.16],['C6',0.30]
+    ],
+    bass: [
+      ['C3',0.64],['E3',0.64],['F3',0.64],['G3',0.64],
+      ['A3',0.64],['G3',0.64],['F3',0.64],['C3',0.64]
+    ]
+  },
+  {
+    name: 'Docinho Aventureiro',
+    tempo: 118,
+    type: 'square',
+    gain: 0.035,
+    melody: [
+      ['E5',0.12],['G5',0.12],['A5',0.12],['B5',0.12],['C6',0.24],
+      ['B5',0.12],['A5',0.12],['G5',0.12],['E5',0.12],['G5',0.24],
+      ['D5',0.12],['F5',0.12],['A5',0.12],['C6',0.12],['D6',0.24],
+      ['C6',0.12],['A5',0.12],['F5',0.12],['D5',0.12],['F5',0.24],
+      ['C5',0.12],['E5',0.12],['G5',0.12],['B5',0.12],['E6',0.24],
+      ['D6',0.12],['B5',0.12],['G5',0.12],['E5',0.12],['C6',0.32]
+    ],
+    bass: [
+      ['C3',0.48],['G3',0.48],['D3',0.48],['A3',0.48],
+      ['F3',0.48],['C4',0.48],['G3',0.48],['C3',0.48]
+    ]
+  },
+  {
+    name: 'Noite de Corações',
+    tempo: 190,
+    type: 'sine',
+    gain: 0.040,
+    melody: [
+      ['A5',0.18],['C6',0.18],['E6',0.26],['C6',0.18],
+      ['G5',0.18],['B5',0.18],['D6',0.26],['B5',0.18],
+      ['F5',0.18],['A5',0.18],['C6',0.26],['A5',0.18],
+      ['E5',0.18],['G5',0.18],['B5',0.26],['G5',0.18],
+      ['A5',0.18],['C6',0.18],['E6',0.26],['G6',0.18],
+      ['E6',0.18],['C6',0.18],['A5',0.26],['C6',0.34]
+    ],
+    bass: [
+      ['A3',0.72],['G3',0.72],['F3',0.72],['E3',0.72],
+      ['F3',0.72],['G3',0.72],['A3',0.72],['E3',0.72]
+    ]
+  },
+  {
+    name: 'Piquenique Mágico',
+    tempo: 126,
+    type: 'square',
+    gain: 0.034,
+    melody: [
+      ['F5',0.12],['A5',0.12],['C6',0.12],['A5',0.12],['F6',0.26],
+      ['E6',0.12],['C6',0.12],['A5',0.12],['G5',0.12],['A5',0.26],
+      ['G5',0.12],['B5',0.12],['D6',0.12],['B5',0.12],['G6',0.26],
+      ['F6',0.12],['D6',0.12],['B5',0.12],['A5',0.12],['B5',0.26],
+      ['C6',0.12],['E6',0.12],['G6',0.12],['E6',0.12],['C6',0.26],
+      ['A5',0.12],['C6',0.12],['F6',0.12],['E6',0.12],['C6',0.34]
+    ],
+    bass: [
+      ['F3',0.50],['C4',0.50],['G3',0.50],['D4',0.50],
+      ['A3',0.50],['E4',0.50],['F3',0.50],['C4',0.50]
+    ]
+  }
 ];
 
-const bassSong = [
-  ['C3',0.56],['G3',0.56],['A3',0.56],['F3',0.56],
-  ['G3',0.56],['C4',0.56],['F3',0.56],['G3',0.56]
-];
+function activeSong(){
+  return cutePlaylist[currentSongIndex % cutePlaylist.length];
+}
 
 function noteToFreq(note){
   const notes = {C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
@@ -542,20 +709,40 @@ function playTone(freq, duration, type='square', gainValue=0.045){
 function playCuteMusicStep(){
   if(!audioCtx || !musicOn) return;
 
-  const melody = cuteSong[musicStep % cuteSong.length];
-  const bass = bassSong[Math.floor(musicStep/4) % bassSong.length];
+  const song = activeSong();
+  const melody = song.melody[musicStep % song.melody.length];
+  const bass = song.bass[Math.floor(musicStep/4) % song.bass.length];
 
-  playTone(noteToFreq(melody[0]), melody[1], 'square', 0.038);
+  playTone(noteToFreq(melody[0]), melody[1], song.type, song.gain);
 
   if(musicStep % 4 === 0){
-    playTone(noteToFreq(bass[0]), 0.22, 'triangle', 0.026);
+    playTone(noteToFreq(bass[0]), 0.22, 'triangle', 0.022);
   }
 
   if(musicStep % 8 === 3 || musicStep % 8 === 7){
-    playTone(noteToFreq('C7'), 0.045, 'sine', 0.018);
+    playTone(noteToFreq('C7'), 0.045, 'sine', 0.012);
   }
 
   musicStep++;
+
+  // Quando uma música completa, passa para a próxima automaticamente.
+  if(musicStep > 0 && musicStep % song.melody.length === 0){
+    currentSongIndex = (currentSongIndex + 1) % cutePlaylist.length;
+    musicStep = 0;
+    updateMusicLabel();
+  }
+}
+
+function updateMusicLabel(){
+  const song = activeSong();
+  nextMusicBtn.textContent = '↻ ' + (currentSongIndex + 1) + '/' + cutePlaylist.length;
+  if(musicOn){
+    musicBtn.classList.remove('off');
+    musicBtn.textContent = '♪ ' + song.name;
+  } else {
+    musicBtn.classList.add('off');
+    musicBtn.textContent = '♪ música';
+  }
 }
 
 function startMusic(){
@@ -564,17 +751,27 @@ function startMusic(){
   if(audioCtx.state === 'suspended') audioCtx.resume();
 
   musicOn = true;
-  musicBtn.classList.remove('off');
-  musicBtn.textContent = '♪ tocando';
+  updateMusicLabel();
 
   playCuteMusicStep();
-  musicTimer = setInterval(playCuteMusicStep, 140);
+  const song = activeSong();
+  musicTimer = setInterval(playCuteMusicStep, song.tempo);
+}
+
+function restartMusicTimer(){
+  if(musicTimer){
+    clearInterval(musicTimer);
+    musicTimer = null;
+  }
+  if(musicOn){
+    const song = activeSong();
+    musicTimer = setInterval(playCuteMusicStep, song.tempo);
+  }
 }
 
 function stopMusic(){
   musicOn = false;
-  musicBtn.classList.add('off');
-  musicBtn.textContent = '♪ música';
+  updateMusicLabel();
   if(musicTimer){
     clearInterval(musicTimer);
     musicTimer = null;
@@ -586,6 +783,15 @@ function toggleMusic(){
   else startMusic();
 }
 
+function nextMusic(){
+  currentSongIndex = (currentSongIndex + 1) % cutePlaylist.length;
+  musicStep = 0;
+  updateMusicLabel();
+  restartMusicTimer();
+  if(musicOn) playCuteMusicStep();
+}
+
+updateMusicLabel();
 
 function resize(){
   DPR=Math.min(window.devicePixelRatio||1,2);
@@ -597,14 +803,27 @@ function resize(){
   canvas.style.height=H+'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.imageSmoothingEnabled=false;
-  scale=Math.min(W/430,H/760);
-  scale=Math.max(0.82, Math.min(scale,1.12));
+
+  const landscape = W > H;
+  if(landscape && H < 560){
+    // Correção principal para celular deitado:
+    // antes a escala nunca ficava menor que 0.82, então o mapa ficava grande e cortado.
+    scale = Math.min(W/900, H/520);
+    scale = Math.max(0.46, Math.min(scale,0.86));
+  } else {
+    scale=Math.min(W/430,H/760);
+    scale=Math.max(0.74, Math.min(scale,1.12));
+  }
 }
 window.addEventListener('resize', resize);
 resize();
 
 function rects(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
-function worldToScreen(x,y){ return { x:(x-cam.x)*scale, y:y*scale + (H-world.h*scale)*0.58 }; }
+function worldToScreen(x,y){
+  const landscape = W > H && H < 560;
+  const verticalFactor = landscape ? 0.72 : 0.58;
+  return { x:(x-cam.x)*scale, y:y*scale + (H-world.h*scale)*verticalFactor };
+}
 
 function allSolids(){
   return [
@@ -886,7 +1105,9 @@ function update(){
   if(portalMessageTimer > 0) portalMessageTimer--;
   if(speechBubbleTimer > 0) speechBubbleTimer--;
 
-  const target = player.x - W/(2*scale);
+  const landscape = W > H && H < 560;
+  const cameraLead = landscape ? player.face * 90 : 0;
+  const target = player.x + cameraLead - W/(2*scale);
   cam.x += (target-cam.x)*0.08;
   cam.x = Math.max(0, Math.min(cam.x, world.w - W/scale));
 
@@ -1518,6 +1739,14 @@ document.getElementById('openBtn').addEventListener('click', ()=>{
 musicBtn.addEventListener('click', ()=>{
   toggleMusic();
 });
+
+nextMusicBtn.addEventListener('click', ()=>{
+  nextMusic();
+});
+
+document.addEventListener('touchmove', e=>{
+  if(e.target.closest('.controls') || e.target.closest('canvas')) e.preventDefault();
+}, {passive:false});
 
 window.addEventListener('keydown', e=>{
   const k=e.key.toLowerCase();
