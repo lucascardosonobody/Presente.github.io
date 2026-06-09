@@ -1,0 +1,15 @@
+COMO USAR
+
+Substitua o jogo.html antigo por este novo jogo.html.
+
+O QUE MUDOU
+
+- Adicionei música de fundo original estilo jogo fofo/chiptune.
+- A música começa quando clicar em "Começar jogo".
+- Adicionei um botão "♪ música" para ligar/desligar o som.
+- Não usei música oficial do Kirby.
+- Mantive o cenário fofinho, quadros pequenos, corações aleatórios e o balão de fala.
+
+OBS:
+Por direitos autorais, não coloquei uma música oficial do Kirby.
+Coloquei uma trilha original com clima de jogo fofo.
