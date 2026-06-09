@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Jogo da Surpresa ❤️</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#87d5ff;color:white;font-family:Arial,sans-serif}
+body{min-height:100svh;background:linear-gradient(180deg,#8fdcff 0%,#ffd7ef 58%,#fff5e1 100%)}
+canvas{display:block;width:100vw;height:100svh;image-rendering:pixelated}
+.hud{position:fixed;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:8;width:min(920px,95vw);display:flex;justify-content:space-between;gap:8px;pointer-events:none;font-weight:800;font-size:clamp(.72rem,3.1vw,1rem);text-shadow:0 2px 8px rgba(80,20,70,.65)}
+.pill{background:rgba(255,255,255,.44);color:#7a1d55;border:1px solid rgba(255,255,255,.6);border-radius:999px;padding:8px 11px;box-shadow:0 8px 22px rgba(180,75,135,.18);backdrop-filter:blur(6px)}
+.screen{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:22px;background:rgba(82,28,72,.35);backdrop-filter:blur(6px);transition:.5s ease}
+.screen.hide{opacity:0;pointer-events:none}
+.card{width:min(580px,92vw);padding:28px 22px;border-radius:28px;text-align:center;background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(255,234,247,.62));border:1px solid rgba(255,255,255,.74);box-shadow:0 18px 48px rgba(180,75,135,.25);color:#7a1d55}
+.card h1{font-size:clamp(1.75rem,8.5vw,3.25rem);margin-bottom:12px;color:#d73588;text-shadow:0 0 12px rgba(255,255,255,.8)}
+.card p{line-height:1.55;color:rgba(78,25,62,.86);margin-bottom:16px;font-size:clamp(.92rem,3.8vw,1.03rem)}
+button{border:0;border-radius:999px;padding:13px 22px;background:linear-gradient(90deg,#ff5fa2,#ff8bc0);color:white;font-weight:900;font-size:1rem;box-shadow:0 10px 28px rgba(255,95,162,.32)}
+.controls{position:fixed;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom));z-index:12;display:flex;justify-content:space-between;padding:0 18px;pointer-events:none}
+.group{display:flex;gap:12px;pointer-events:auto}
+.ctrl{width:58px;height:58px;display:grid;place-items:center;padding:0;background:rgba(255,95,162,.52);border:1px solid rgba(255,255,255,.58);font-size:1.45rem;backdrop-filter:blur(5px)}
+.jump{width:74px;height:74px;font-size:1.9rem;background:rgba(255,95,162,.66)}
+.music-btn{
+  position:fixed;
+  right:14px;
+  top:max(58px,calc(env(safe-area-inset-top) + 58px));
+  z-index:14;
+  width:auto;
+  min-width:92px;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,95,162,.58);
+  border:1px solid rgba(255,255,255,.62);
+  color:white;
+  font-size:.82rem;
+  font-weight:900;
+  box-shadow:0 8px 22px rgba(180,75,135,.18);
+  backdrop-filter:blur(6px);
+}
+.music-btn.off{background:rgba(120,80,120,.42)}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div class="hud">
+  <div class="pill">❤️ <span id="score">0</span>/<span id="total">7</span></div>
+  <div class="pill">Mundo alternativo ✨</div>
+</div>
+
+<section class="screen" id="start">
+  <div class="card">
+    <h1>Mundo Alternativo ❤️</h1>
+    <p>
+      Você está em mundo alternativo, pegue os corações pelo mapa e passe pelo portal.
+    </p>
+    <p style="opacity:.74;font-size:.9rem">
+      No celular use os botões. No computador use A/D ou setas e espaço para pular.
+    </p>
+    <button id="startBtn">Começar jogo</button>
+  </div>
+</section>
+
+<section class="screen hide" id="end">
+  <div class="card">
+    <h1>Você chegou! ❤️</h1>
+    <p>A surpresa vai abrir agora...</p>
+    <button id="openBtn">Abrir surpresa</button>
+  </div>
+</section>
+
+<div class="controls">
+  <div class="group">
+    <button class="ctrl" id="left">◀</button>
+    <button class="ctrl" id="right">▶</button>
+  </div>
+  <div class="group">
+    <button class="ctrl jump" id="jump">↑</button>
+  </div>
+</div>
+
+<button class="music-btn off" id="musicBtn">♪ música</button>
+
+<script>
+const ARQUIVO_DA_SURPRESA = "index.html";
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const totalEl = document.getElementById('total');
+const startScreen = document.getElementById('start');
+const endScreen = document.getElementById('end');
+const musicBtn = document.getElementById('musicBtn');
+
+const imgs = {
+  player: new Image(),
+  grass: new Image(),
+  dirt: new Image(),
+  stone: new Image(),
+  crate: new Image(),
+  spike: new Image(),
+  tree: new Image(),
+  bush: new Image(),
+  cloud: new Image(),
+  sign: new Image(),
+  portal: new Image(),
+  heart: new Image(),
+  ladder: new Image(),
+  rope: new Image(),
+  islandSmall: new Image(),
+  islandMedium: new Image(),
+  islandLarge: new Image()
+};
+
+const photoFiles = Array.from({length:36}, (_,i)=> `foto${i+1}.jpeg`);
+const photoImgs = photoFiles.map(src => {
+  const img = new Image();
+  img.src = src;
+  return img;
+});
+
+imgs.player.src = "sprite_monique_retro.png";
+imgs.grass.src = "tile_grass.png";
+imgs.dirt.src = "tile_dirt.png";
+imgs.stone.src = "tile_stone.png";
+imgs.crate.src = "crate.png";
+imgs.spike.src = "spike.png";
+imgs.tree.src = "tree.png";
+imgs.bush.src = "bush.png";
+imgs.cloud.src = "cloud.png";
+imgs.sign.src = "sign.png";
+imgs.portal.src = "portal.png";
+imgs.heart.src = "heart.png";
+imgs.ladder.src = "ladder.png";
+imgs.rope.src = "rope.png";
+imgs.islandSmall.src = "island_small.png";
+imgs.islandMedium.src = "island_medium.png";
+imgs.islandLarge.src = "island_large.png";
+
+let W=0,H=0,DPR=1,scale=1,started=false,finished=false,frameTick=0,portalMessageTimer=0,speechBubbleTimer=0,speechBubbleText='';
+let audioCtx=null,musicOn=false,musicTimer=null,musicStep=0;
+const keys = { left:false, right:false, jump:false };
+
+const world = { w: 18500, h: 900 };
+const groundY = 760;
+const cam = { x: 0 };
+
+const gravity = 0.56;
+const friction = 0.84;
+const speed = 0.96;
+const maxSpeed = 7.0;
+const jumpPower = 16.1;
+
+const player = {
+  x: 70,
+  y: groundY - 64,
+  w: 42,
+  h: 64,
+  vx: 0,
+  vy: 0,
+  ground: false,
+  face: 1,
+  checkpointX: 70
+};
+
+const groundSegments = [
+  {x:0, y:groundY, w:460, h:140},
+  {x:2380, y:groundY, w:500, h:140},
+  {x:4880, y:groundY-8, w:520, h:148},
+  {x:7220, y:groundY, w:520, h:140},
+  {x:9620, y:groundY-8, w:520, h:148},
+  {x:12180, y:groundY, w:520, h:140},
+  {x:14880, y:groundY-8, w:520, h:148},
+  {x:17680, y:groundY-10, w:620, h:150}
+];
+
+// 7 áreas com desenhos diferentes, agora com plataformas intermediárias acessíveis.
+// Não tem blocos dentro de blocos e não tem salto absurdo entre áreas.
+const islands = [
+  {x:600, y:690, w:150, h:36},
+  {x:870, y:630, w:150, h:36},
+  {x:1135, y:565, w:160, h:36},
+  {x:1405, y:500, w:150, h:36},
+  {x:1690, y:570, w:160, h:36},
+  {x:1985, y:645, w:150, h:36},
+  {x:2240, y:710, w:150, h:36},
+  {x:2500, y:675, w:150, h:36},
+  {x:2750, y:625, w:150, h:36},
+  {x:3020, y:680, w:160, h:36},
+  {x:3300, y:600, w:150, h:36},
+  {x:3580, y:520, w:155, h:36},
+  {x:3860, y:440, w:150, h:36},
+  {x:4140, y:525, w:170, h:36},
+  {x:4440, y:610, w:150, h:36},
+  {x:4700, y:690, w:160, h:36},
+  {x:4960, y:655, w:150, h:36},
+  {x:5220, y:600, w:150, h:36},
+  {x:5480, y:700, w:150, h:36},
+  {x:5720, y:625, w:140, h:36},
+  {x:5960, y:545, w:140, h:36},
+  {x:6200, y:465, w:140, h:36},
+  {x:6450, y:385, w:150, h:36},
+  {x:6720, y:475, w:150, h:36},
+  {x:7000, y:575, w:150, h:36},
+  {x:7270, y:680, w:160, h:36},
+  {x:7550, y:635, w:150, h:36},
+  {x:7830, y:690, w:160, h:36},
+  {x:8110, y:610, w:150, h:36},
+  {x:8390, y:530, w:150, h:36},
+  {x:8660, y:450, w:150, h:36},
+  {x:8950, y:360, w:150, h:36},
+  {x:9250, y:455, w:150, h:36},
+  {x:9540, y:555, w:150, h:36},
+  {x:9800, y:660, w:160, h:36},
+  {x:10080, y:630, w:150, h:36},
+  {x:10340, y:575, w:150, h:36},
+  {x:10620, y:625, w:160, h:36},
+  {x:10900, y:700, w:150, h:36},
+  {x:11170, y:640, w:150, h:36},
+  {x:11460, y:555, w:160, h:36},
+  {x:11760, y:465, w:150, h:36},
+  {x:12060, y:555, w:160, h:36},
+  {x:12340, y:645, w:150, h:36},
+  {x:12620, y:610, w:150, h:36},
+  {x:12890, y:565, w:150, h:36},
+  {x:13170, y:685, w:190, h:36},
+  {x:13500, y:590, w:130, h:36},
+  {x:13780, y:500, w:200, h:36},
+  {x:14130, y:610, w:130, h:36},
+  {x:14410, y:520, w:180, h:36},
+  {x:14730, y:430, w:145, h:36},
+  {x:15000, y:610, w:160, h:36},
+  {x:15280, y:645, w:150, h:36},
+  {x:15540, y:585, w:150, h:36},
+  {x:15820, y:680, w:150, h:36},
+  {x:16090, y:600, w:160, h:36},
+  {x:16370, y:520, w:160, h:36},
+  {x:16650, y:430, w:150, h:36},
+  {x:16930, y:525, w:160, h:36},
+  {x:17220, y:620, w:150, h:36},
+  {x:17500, y:700, w:170, h:36}
+];
+
+// Plataformas do fundo, acessíveis e reposicionadas para apoiar os corações.
+const rearIslands = [
+  {x:760, y:485, w:130, h:34},
+  {x:1030, y:400, w:130, h:34},
+  {x:1310, y:325, w:130, h:34},
+  {x:1600, y:400, w:130, h:34},
+  {x:3200, y:430, w:130, h:34},
+  {x:3480, y:350, w:130, h:34},
+  {x:3780, y:310, w:130, h:34},
+  {x:4300, y:405, w:130, h:34},
+  {x:5630, y:455, w:130, h:34},
+  {x:5910, y:370, w:130, h:34},
+  {x:6190, y:300, w:130, h:34},
+  {x:6500, y:275, w:130, h:34},
+  {x:6800, y:350, w:130, h:34},
+  {x:8020, y:430, w:130, h:34},
+  {x:8350, y:350, w:130, h:34},
+  {x:8700, y:285, w:130, h:34},
+  {x:9100, y:295, w:130, h:34},
+  {x:9400, y:380, w:130, h:34},
+  {x:10760, y:450, w:130, h:34},
+  {x:11100, y:360, w:130, h:34},
+  {x:11480, y:300, w:130, h:34},
+  {x:11860, y:365, w:130, h:34},
+  {x:12160, y:455, w:130, h:34},
+  {x:13320, y:420, w:130, h:34},
+  {x:13670, y:340, w:130, h:34},
+  {x:14040, y:285, w:130, h:34},
+  {x:14430, y:330, w:130, h:34},
+  {x:14800, y:390, w:130, h:34},
+  {x:15970, y:430, w:130, h:34},
+  {x:16280, y:350, w:130, h:34},
+  {x:16630, y:300, w:130, h:34},
+  {x:17000, y:350, w:130, h:34},
+  {x:17340, y:440, w:130, h:34}
+];
+
+// Sem caixas empurráveis para evitar poluição e blocos sobrepostos.
+const crates = [];
+
+const spikes = [
+  {x:2500, y:groundY-18, w:70, h:18},
+  {x:5020, y:groundY-26, w:76, h:18},
+  {x:7340, y:groundY-18, w:70, h:18},
+  {x:9760, y:groundY-26, w:76, h:18},
+  {x:12320, y:groundY-18, w:70, h:18},
+  {x:15000, y:groundY-26, w:76, h:18},
+  {x:17840, y:groundY-28, w:72, h:18}
+];
+
+// Escadas são apoio visual e não formam blocos.
+const ladders = [
+  {x:1160, y:590, h:80},
+  {x:3600, y:548, h:78},
+  {x:5980, y:570, h:76},
+  {x:8420, y:558, h:78},
+  {x:11490, y:582, h:76},
+  {x:13810, y:528, h:78},
+  {x:16400, y:548, h:78}
+];
+
+// Cordas removidas nesta versão para não parecerem plataformas sólidas.
+const ropes = [];
+
+const signs = [];
+
+const HEART_TOTAL = 7;
+const MIN_HEART_DISTANCE_FROM_PLAYER = 720;
+
+// O jogo mostra apenas um coração por vez.
+// O próximo coração só nasce depois que o anterior for coletado.
+let currentHeartIndex = 0;
+let activeHeart = null;
+const collectedHearts = [];
+
+const portal = { x: 17980, y: groundY-116, w: 64, h: 96 };
+const checkpoints = [70, 2650, 5150, 7600, 10100, 12650, 15300];
+
+const decoTrees = Array.from({length: 78}, (_,i)=> ({
+  x: 120 + i*235 + ((i%4)*22),
+  size: 0.78 + ((i%5)*0.08),
+  layer: [0.14,0.18,0.22,0.26][i%4]
+}));
+const decoBushes = Array.from({length: 165}, (_,i)=> ({x: 28+i*58 + ((i%3)*10), y: groundY-4 - ((i%5===0)?8:((i%4===0)?14:0)), layer: [0.72,0.78,0.84,0.92,1][i%5]}));
+const decoClouds = [
+  {x:90,y:82,s:1.0},{x:430,y:124,s:0.95},{x:760,y:90,s:1.15},{x:1150,y:128,s:0.88},
+  {x:1540,y:96,s:1.05},{x:1960,y:118,s:1.1},{x:2350,y:84,s:0.92},{x:2770,y:132,s:1.0},
+  {x:3180,y:98,s:1.06},{x:3590,y:122,s:0.9},{x:4010,y:92,s:1.1},{x:4380,y:126,s:0.96},
+  {x:4800,y:84,s:1.12},{x:5190,y:120,s:0.94},{x:5610,y:94,s:1.08},{x:6060,y:126,s:0.9}
+];
+const photoSpots = [
+  // começo do mapa
+  {x: 520, y: 250, w: 76, h: 76, photo: 0, layer: 0.14, drift: 0.85},
+  {x: 980, y: 300, w: 84, h: 84, photo: 2, layer: 0.12, drift: 0.8},
+  {x: 1480, y: 220, w: 78, h: 78, photo: 5, layer: 0.18, drift: 1.05},
+  {x: 2050, y: 285, w: 82, h: 82, photo: 8, layer: 0.15, drift: 1.15},
+  {x: 2580, y: 250, w: 82, h: 82, photo: 10, layer: 0.18, drift: 1.2},
+
+  // primeira metade
+  {x: 3180, y: 230, w: 78, h: 78, photo: 12, layer: 0.13, drift: 0.95},
+  {x: 3820, y: 270, w: 86, h: 86, photo: 14, layer: 0.2, drift: 1.1},
+  {x: 4450, y: 215, w: 80, h: 80, photo: 16, layer: 0.14, drift: 1.0},
+  {x: 4860, y: 220, w: 88, h: 88, photo: 18, layer: 0.14, drift: 0.9},
+  {x: 5480, y: 275, w: 78, h: 78, photo: 20, layer: 0.16, drift: 1.25},
+  {x: 6120, y: 210, w: 86, h: 86, photo: 22, layer: 0.11, drift: 0.9},
+  {x: 6750, y: 285, w: 82, h: 82, photo: 24, layer: 0.19, drift: 1.18},
+
+  // meio do mapa
+  {x: 7420, y: 260, w: 84, h: 84, photo: 26, layer: 0.17, drift: 1.1},
+  {x: 8020, y: 220, w: 76, h: 76, photo: 28, layer: 0.13, drift: 0.85},
+  {x: 8650, y: 290, w: 86, h: 86, photo: 30, layer: 0.18, drift: 1.16},
+  {x: 9280, y: 235, w: 80, h: 80, photo: 32, layer: 0.15, drift: 0.96},
+  {x: 10180, y: 215, w: 88, h: 88, photo: 34, layer: 0.12, drift: 1.0},
+  {x: 10760, y: 285, w: 78, h: 78, photo: 1, layer: 0.19, drift: 1.22},
+  {x: 11340, y: 225, w: 84, h: 84, photo: 3, layer: 0.15, drift: 0.92},
+  {x: 11980, y: 280, w: 80, h: 80, photo: 6, layer: 0.17, drift: 1.1},
+
+  // segunda metade
+  {x: 12620, y: 235, w: 82, h: 82, photo: 9, layer: 0.14, drift: 0.9},
+  {x: 13280, y: 245, w: 84, h: 84, photo: 11, layer: 0.2, drift: 1.25},
+  {x: 13920, y: 290, w: 78, h: 78, photo: 13, layer: 0.17, drift: 1.05},
+  {x: 14560, y: 215, w: 86, h: 86, photo: 15, layer: 0.12, drift: 0.86},
+  {x: 15150, y: 275, w: 80, h: 80, photo: 17, layer: 0.18, drift: 1.18},
+  {x: 15760, y: 225, w: 78, h: 78, photo: 19, layer: 0.15, drift: 0.98},
+  {x: 16380, y: 205, w: 90, h: 90, photo: 21, layer: 0.14, drift: 0.95},
+  {x: 16980, y: 285, w: 82, h: 82, photo: 23, layer: 0.2, drift: 1.2},
+  {x: 17560, y: 235, w: 78, h: 78, photo: 25, layer: 0.16, drift: 1.05},
+
+  // fotos mais próximas do caminho/plataformas, ainda decorativas
+  {x: 1230, y: 455, w: 66, h: 66, photo: 27, layer: 1, drift: 0.7},
+  {x: 3580, y: 390, w: 66, h: 66, photo: 29, layer: 1, drift: 0.78},
+  {x: 6200, y: 245, w: 66, h: 66, photo: 31, layer: 1, drift: 0.82},
+  {x: 8950, y: 310, w: 66, h: 66, photo: 33, layer: 1, drift: 0.76},
+  {x: 11760, y: 415, w: 66, h: 66, photo: 35, layer: 1, drift: 0.88},
+  {x: 14730, y: 380, w: 66, h: 66, photo: 4, layer: 1, drift: 0.8},
+  {x: 16650, y: 380, w: 66, h: 66, photo: 7, layer: 1, drift: 0.83},
+
+  // quadros menores espalhados pelo cenário
+  {x: 760, y: 185, w: 48, h: 48, photo: 8, layer: 0.32, drift: 1.04},
+  {x: 1120, y: 245, w: 52, h: 52, photo: 14, layer: 0.46, drift: 0.92},
+  {x: 1760, y: 180, w: 46, h: 46, photo: 22, layer: 0.38, drift: 1.12},
+  {x: 2260, y: 350, w: 50, h: 50, photo: 31, layer: 0.62, drift: 0.8},
+
+  {x: 2860, y: 185, w: 48, h: 48, photo: 4, layer: 0.34, drift: 1.1},
+  {x: 3360, y: 255, w: 54, h: 54, photo: 18, layer: 0.55, drift: 0.88},
+  {x: 4060, y: 185, w: 46, h: 46, photo: 27, layer: 0.42, drift: 1.16},
+  {x: 4620, y: 360, w: 52, h: 52, photo: 2, layer: 0.72, drift: 0.86},
+
+  {x: 5260, y: 175, w: 48, h: 48, photo: 11, layer: 0.36, drift: 1.02},
+  {x: 5820, y: 260, w: 54, h: 54, photo: 24, layer: 0.58, drift: 0.94},
+  {x: 6480, y: 190, w: 46, h: 46, photo: 35, layer: 0.4, drift: 1.15},
+  {x: 7060, y: 365, w: 50, h: 50, photo: 6, layer: 0.74, drift: 0.82},
+
+  {x: 7680, y: 190, w: 52, h: 52, photo: 17, layer: 0.36, drift: 1.05},
+  {x: 8260, y: 265, w: 46, h: 46, photo: 28, layer: 0.55, drift: 0.91},
+  {x: 8860, y: 205, w: 54, h: 54, photo: 1, layer: 0.44, drift: 1.18},
+  {x: 9520, y: 370, w: 48, h: 48, photo: 33, layer: 0.76, drift: 0.84},
+
+  {x: 10380, y: 180, w: 50, h: 50, photo: 12, layer: 0.34, drift: 1.06},
+  {x: 10960, y: 260, w: 52, h: 52, photo: 26, layer: 0.56, drift: 0.96},
+  {x: 11620, y: 195, w: 46, h: 46, photo: 30, layer: 0.42, drift: 1.12},
+  {x: 12280, y: 360, w: 54, h: 54, photo: 10, layer: 0.7, drift: 0.83},
+
+  {x: 12940, y: 180, w: 48, h: 48, photo: 20, layer: 0.36, drift: 1.08},
+  {x: 13540, y: 265, w: 52, h: 52, photo: 34, layer: 0.58, drift: 0.9},
+  {x: 14180, y: 190, w: 46, h: 46, photo: 7, layer: 0.45, drift: 1.17},
+  {x: 14840, y: 355, w: 50, h: 50, photo: 16, layer: 0.74, drift: 0.86},
+
+  {x: 15480, y: 170, w: 54, h: 54, photo: 25, layer: 0.34, drift: 1.03},
+  {x: 16020, y: 250, w: 48, h: 48, photo: 29, layer: 0.56, drift: 0.95},
+  {x: 16740, y: 180, w: 52, h: 52, photo: 3, layer: 0.42, drift: 1.14},
+  {x: 17420, y: 345, w: 46, h: 46, photo: 13, layer: 0.72, drift: 0.87},
+
+  // quadros pequenos mais próximos de algumas plataformas
+  {x: 900, y: 520, w: 44, h: 44, photo: 5, layer: 1, drift: 0.7},
+  {x: 1460, y: 430, w: 44, h: 44, photo: 9, layer: 1, drift: 0.76},
+  {x: 3340, y: 515, w: 46, h: 46, photo: 15, layer: 1, drift: 0.72},
+  {x: 3920, y: 360, w: 44, h: 44, photo: 21, layer: 1, drift: 0.78},
+  {x: 5740, y: 540, w: 46, h: 46, photo: 23, layer: 1, drift: 0.74},
+  {x: 6460, y: 310, w: 44, h: 44, photo: 32, layer: 1, drift: 0.8},
+  {x: 8460, y: 455, w: 46, h: 46, photo: 19, layer: 1, drift: 0.75},
+  {x: 9000, y: 300, w: 44, h: 44, photo: 0, layer: 1, drift: 0.82},
+  {x: 11180, y: 560, w: 46, h: 46, photo: 28, layer: 1, drift: 0.73},
+  {x: 11880, y: 390, w: 44, h: 44, photo: 35, layer: 1, drift: 0.81},
+  {x: 13680, y: 520, w: 46, h: 46, photo: 11, layer: 1, drift: 0.75},
+  {x: 14780, y: 360, w: 44, h: 44, photo: 26, layer: 1, drift: 0.79},
+  {x: 16120, y: 520, w: 46, h: 46, photo: 30, layer: 1, drift: 0.72},
+  {x: 17080, y: 470, w: 44, h: 44, photo: 18, layer: 1, drift: 0.78}
+];
+const platformDecos = [
+  {x: 565, y: 684, kind: 'flower', size: 0.95}, {x: 635, y: 684, kind: 'bush', size: 0.42}, {x: 705, y: 684, kind: 'heart', size: 0.82},
+  {x: 865, y: 624, kind: 'flower', size: 0.92}, {x: 935, y: 624, kind: 'flower', size: 1.0}, {x: 1005, y: 624, kind: 'bush', size: 0.4},
+  {x: 1125, y: 559, kind: 'flower', size: 0.88}, {x: 1195, y: 559, kind: 'heart', size: 0.9}, {x: 1265, y: 559, kind: 'flower', size: 0.94},
+  {x: 1375, y: 494, kind: 'bush', size: 0.4}, {x: 1445, y: 494, kind: 'flower', size: 0.92}, {x: 1515, y: 494, kind: 'heart', size: 0.82},
+  {x: 1645, y: 564, kind: 'flower', size: 0.9}, {x: 1715, y: 564, kind: 'flower', size: 0.95}, {x: 1785, y: 564, kind: 'bush', size: 0.4},
+  {x: 1945, y: 639, kind: 'heart', size: 0.8}, {x: 2015, y: 639, kind: 'bush', size: 0.42}, {x: 2085, y: 639, kind: 'flower', size: 0.88},
+  {x: 2455, y: 669, kind: 'flower', size: 0.88}, {x: 2525, y: 669, kind: 'flower', size: 0.95}, {x: 2595, y: 669, kind: 'bush', size: 0.42},
+  {x: 2705, y: 619, kind: 'heart', size: 0.8}, {x: 2775, y: 619, kind: 'heart', size: 0.85}, {x: 2845, y: 619, kind: 'flower', size: 0.9},
+  {x: 2980, y: 674, kind: 'bush', size: 0.4}, {x: 3050, y: 674, kind: 'flower', size: 0.9}, {x: 3120, y: 674, kind: 'heart', size: 0.8},
+  {x: 3265, y: 594, kind: 'flower', size: 0.92}, {x: 3335, y: 594, kind: 'flower', size: 1.0}, {x: 3405, y: 594, kind: 'bush', size: 0.42},
+  {x: 3810, y: 434, kind: 'flower', size: 0.9}, {x: 3880, y: 434, kind: 'heart', size: 0.85}, {x: 3950, y: 434, kind: 'flower', size: 0.86},
+  {x: 4085, y: 519, kind: 'bush', size: 0.42}, {x: 4155, y: 519, kind: 'flower', size: 0.9}, {x: 4225, y: 519, kind: 'heart', size: 0.8},
+  {x: 4395, y: 604, kind: 'flower', size: 0.88}, {x: 4465, y: 604, kind: 'flower', size: 0.92}, {x: 4535, y: 604, kind: 'bush', size: 0.42},
+  {x: 5425, y: 694, kind: 'heart', size: 0.8}, {x: 5495, y: 694, kind: 'bush', size: 0.45}, {x: 5565, y: 694, kind: 'flower', size: 0.88},
+  {x: 5670, y: 619, kind: 'flower', size: 0.88}, {x: 5740, y: 619, kind: 'flower', size: 0.95}, {x: 5810, y: 619, kind: 'heart', size: 0.82},
+  {x: 5905, y: 539, kind: 'flower', size: 0.88}, {x: 5975, y: 539, kind: 'heart', size: 0.85}, {x: 6045, y: 539, kind: 'flower', size: 0.95},
+  {x: 6145, y: 459, kind: 'heart', size: 0.82}, {x: 6215, y: 459, kind: 'flower', size: 0.98}, {x: 6285, y: 459, kind: 'bush', size: 0.4},
+  {x: 6395, y: 379, kind: 'flower', size: 0.9}, {x: 6465, y: 379, kind: 'bush', size: 0.42}, {x: 6535, y: 379, kind: 'heart', size: 0.8},
+  {x: 6675, y: 469, kind: 'flower', size: 0.86}, {x: 6745, y: 469, kind: 'flower', size: 0.9}, {x: 6815, y: 469, kind: 'heart', size: 0.8},
+  {x: 6945, y: 569, kind: 'bush', size: 0.42}, {x: 7015, y: 569, kind: 'flower', size: 0.9}, {x: 7085, y: 569, kind: 'heart', size: 0.82},
+  {x: 7775, y: 684, kind: 'heart', size: 0.8}, {x: 7845, y: 684, kind: 'flower', size: 0.95}, {x: 7915, y: 684, kind: 'flower', size: 0.88},
+  {x: 8060, y: 604, kind: 'flower', size: 0.86}, {x: 8130, y: 604, kind: 'bush', size: 0.44}, {x: 8200, y: 604, kind: 'heart', size: 0.8},
+  {x: 8335, y: 524, kind: 'flower', size: 0.88}, {x: 8405, y: 524, kind: 'flower', size: 0.95}, {x: 8475, y: 524, kind: 'bush', size: 0.42},
+  {x: 8605, y: 444, kind: 'flower', size: 0.88}, {x: 8675, y: 444, kind: 'heart', size: 0.88}, {x: 8745, y: 444, kind: 'flower', size: 0.92},
+  {x: 8905, y: 354, kind: 'heart', size: 0.82}, {x: 8975, y: 354, kind: 'flower', size: 1.0}, {x: 9045, y: 354, kind: 'bush', size: 0.42},
+  {x: 9195, y: 449, kind: 'flower', size: 0.88}, {x: 9265, y: 449, kind: 'bush', size: 0.45}, {x: 9335, y: 449, kind: 'heart', size: 0.8},
+  {x: 9490, y: 549, kind: 'flower', size: 0.88}, {x: 9560, y: 549, kind: 'flower', size: 0.95}, {x: 9630, y: 549, kind: 'bush', size: 0.42},
+  {x: 9745, y: 654, kind: 'heart', size: 0.8}, {x: 9815, y: 654, kind: 'bush', size: 0.45}, {x: 9885, y: 654, kind: 'flower', size: 0.9},
+  {x: 10575, y: 619, kind: 'flower', size: 0.88}, {x: 10645, y: 619, kind: 'flower', size: 0.95}, {x: 10715, y: 619, kind: 'heart', size: 0.8},
+  {x: 10855, y: 694, kind: 'bush', size: 0.42}, {x: 10925, y: 694, kind: 'bush', size: 0.45}, {x: 10995, y: 694, kind: 'flower', size: 0.9},
+  {x: 11125, y: 634, kind: 'flower', size: 0.85}, {x: 11195, y: 634, kind: 'flower', size: 0.9}, {x: 11265, y: 634, kind: 'heart', size: 0.82},
+  {x: 11415, y: 549, kind: 'flower', size: 0.88}, {x: 11485, y: 549, kind: 'heart', size: 0.85}, {x: 11555, y: 549, kind: 'flower', size: 0.95},
+  {x: 11710, y: 459, kind: 'bush', size: 0.4}, {x: 11780, y: 459, kind: 'flower', size: 0.95}, {x: 11850, y: 459, kind: 'heart', size: 0.8},
+  {x: 12015, y: 549, kind: 'flower', size: 0.88}, {x: 12085, y: 549, kind: 'bush', size: 0.45}, {x: 12155, y: 549, kind: 'flower', size: 0.9},
+  {x: 12285, y: 639, kind: 'heart', size: 0.8}, {x: 12355, y: 639, kind: 'flower', size: 0.92}, {x: 12425, y: 639, kind: 'bush', size: 0.42},
+  {x: 12575, y: 604, kind: 'flower', size: 0.88}, {x: 12645, y: 604, kind: 'bush', size: 0.42}, {x: 12715, y: 604, kind: 'heart', size: 0.82},
+  {x: 12845, y: 559, kind: 'flower', size: 0.9}, {x: 12915, y: 559, kind: 'flower', size: 0.95}, {x: 12985, y: 559, kind: 'bush', size: 0.42},
+  {x: 13125, y: 679, kind: 'flower', size: 0.88}, {x: 13195, y: 679, kind: 'heart', size: 0.88}, {x: 13265, y: 679, kind: 'flower', size: 0.94},
+  {x: 13450, y: 584, kind: 'flower', size: 0.86}, {x: 13520, y: 584, kind: 'bush', size: 0.42}, {x: 13590, y: 584, kind: 'heart', size: 0.8},
+  {x: 13730, y: 494, kind: 'heart', size: 0.82}, {x: 13800, y: 494, kind: 'flower', size: 0.98}, {x: 13870, y: 494, kind: 'flower', size: 0.9},
+  {x: 14075, y: 604, kind: 'flower', size: 0.88}, {x: 14145, y: 604, kind: 'heart', size: 0.85}, {x: 14215, y: 604, kind: 'bush', size: 0.42},
+  {x: 14355, y: 514, kind: 'flower', size: 0.86}, {x: 14425, y: 514, kind: 'bush', size: 0.44}, {x: 14495, y: 514, kind: 'heart', size: 0.8},
+  {x: 14675, y: 424, kind: 'flower', size: 0.88}, {x: 14745, y: 424, kind: 'flower', size: 0.95}, {x: 14815, y: 424, kind: 'heart', size: 0.8},
+  {x: 14955, y: 604, kind: 'bush', size: 0.42}, {x: 15025, y: 604, kind: 'bush', size: 0.44}, {x: 15095, y: 604, kind: 'flower', size: 0.88},
+  {x: 15235, y: 639, kind: 'flower', size: 0.85}, {x: 15305, y: 639, kind: 'flower', size: 0.9}, {x: 15375, y: 639, kind: 'heart', size: 0.82},
+  {x: 15485, y: 579, kind: 'flower', size: 0.88}, {x: 15555, y: 579, kind: 'heart', size: 0.85}, {x: 15625, y: 579, kind: 'bush', size: 0.42},
+  {x: 15775, y: 674, kind: 'flower', size: 0.88}, {x: 15845, y: 674, kind: 'bush', size: 0.44}, {x: 15915, y: 674, kind: 'heart', size: 0.8},
+  {x: 16045, y: 594, kind: 'flower', size: 0.88}, {x: 16115, y: 594, kind: 'flower', size: 0.95}, {x: 16185, y: 594, kind: 'bush', size: 0.42},
+  {x: 16320, y: 514, kind: 'flower', size: 0.86}, {x: 16390, y: 514, kind: 'bush', size: 0.42}, {x: 16460, y: 514, kind: 'heart', size: 0.8},
+  {x: 16595, y: 424, kind: 'heart', size: 0.82}, {x: 16665, y: 424, kind: 'flower', size: 1.0}, {x: 16735, y: 424, kind: 'flower', size: 0.9},
+  {x: 16885, y: 519, kind: 'flower', size: 0.88}, {x: 16955, y: 519, kind: 'heart', size: 0.85}, {x: 17025, y: 519, kind: 'bush', size: 0.42},
+  {x: 17165, y: 614, kind: 'flower', size: 0.88}, {x: 17235, y: 614, kind: 'bush', size: 0.45}, {x: 17305, y: 614, kind: 'heart', size: 0.8},
+  {x: 17460, y: 694, kind: 'flower', size: 0.92}, {x: 17530, y: 694, kind: 'flower', size: 1.0}, {x: 17600, y: 694, kind: 'heart', size: 0.82}
+];
+
+totalEl.textContent = HEART_TOTAL;
+
+
+// Música original estilo jogo fofo/chiptune.
+// Não é música oficial do Kirby; é uma trilha simples criada no próprio código.
+const cuteSong = [
+  ['C5',0.14],['E5',0.14],['G5',0.14],['C6',0.28],
+  ['B5',0.14],['G5',0.14],['E5',0.14],['G5',0.28],
+  ['A5',0.14],['C6',0.14],['E6',0.14],['D6',0.28],
+  ['C6',0.14],['A5',0.14],['F5',0.14],['A5',0.28],
+
+  ['G5',0.14],['B5',0.14],['D6',0.14],['G6',0.28],
+  ['E6',0.14],['C6',0.14],['A5',0.14],['C6',0.28],
+  ['F5',0.14],['A5',0.14],['C6',0.14],['F6',0.28],
+  ['E6',0.14],['C6',0.14],['G5',0.14],['C6',0.34]
+];
+
+const bassSong = [
+  ['C3',0.56],['G3',0.56],['A3',0.56],['F3',0.56],
+  ['G3',0.56],['C4',0.56],['F3',0.56],['G3',0.56]
+];
+
+function noteToFreq(note){
+  const notes = {C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
+  const m = note.match(/^([A-G]#?)(\d)$/);
+  if(!m) return 440;
+  const semitone = notes[m[1]];
+  const octave = Number(m[2]);
+  const midi = (octave + 1) * 12 + semitone;
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function playTone(freq, duration, type='square', gainValue=0.045){
+  if(!audioCtx || !musicOn) return;
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, now);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(gainValue, now + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(now);
+  osc.stop(now + duration + 0.025);
+}
+
+function playCuteMusicStep(){
+  if(!audioCtx || !musicOn) return;
+
+  const melody = cuteSong[musicStep % cuteSong.length];
+  const bass = bassSong[Math.floor(musicStep/4) % bassSong.length];
+
+  playTone(noteToFreq(melody[0]), melody[1], 'square', 0.038);
+
+  if(musicStep % 4 === 0){
+    playTone(noteToFreq(bass[0]), 0.22, 'triangle', 0.026);
+  }
+
+  if(musicStep % 8 === 3 || musicStep % 8 === 7){
+    playTone(noteToFreq('C7'), 0.045, 'sine', 0.018);
+  }
+
+  musicStep++;
+}
+
+function startMusic(){
+  if(musicOn) return;
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+
+  musicOn = true;
+  musicBtn.classList.remove('off');
+  musicBtn.textContent = '♪ tocando';
+
+  playCuteMusicStep();
+  musicTimer = setInterval(playCuteMusicStep, 140);
+}
+
+function stopMusic(){
+  musicOn = false;
+  musicBtn.classList.add('off');
+  musicBtn.textContent = '♪ música';
+  if(musicTimer){
+    clearInterval(musicTimer);
+    musicTimer = null;
+  }
+}
+
+function toggleMusic(){
+  if(musicOn) stopMusic();
+  else startMusic();
+}
+
+
+function resize(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  W=window.innerWidth;
+  H=window.innerHeight;
+  canvas.width=Math.floor(W*DPR);
+  canvas.height=Math.floor(H*DPR);
+  canvas.style.width=W+'px';
+  canvas.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.imageSmoothingEnabled=false;
+  scale=Math.min(W/430,H/760);
+  scale=Math.max(0.82, Math.min(scale,1.12));
+}
+window.addEventListener('resize', resize);
+resize();
+
+function rects(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+function worldToScreen(x,y){ return { x:(x-cam.x)*scale, y:y*scale + (H-world.h*scale)*0.58 }; }
+
+function allSolids(){
+  return [
+    ...groundSegments.map(g=>({...g, type:'ground'})),
+    ...islands.map(i=>({...i, type:'island'})),
+    ...rearIslands.map(i=>({...i, type:'rearIsland'})),
+    ...crates.map(c=>({...c, type:'crate'}))
+  ];
+}
+
+
+function heartSurfaceCandidates(){
+  // Corações sempre nascem em cima de superfícies sólidas.
+  // Inclui chão, plataformas principais e plataformas do fundo.
+  // Agora NÃO separa por área e NÃO favorece a frente.
+  // Pode nascer no começo, meio ou final do mapa, desde que não esteja perto dela.
+  return [
+    ...groundSegments.map(s => ({...s, kind:'ground'})),
+    ...islands.map(s => ({...s, kind:'island'})),
+    ...rearIslands.map(s => ({...s, kind:'rearIsland'}))
+  ].filter(s =>
+    s.w >= 90 &&
+    s.x < portal.x + 80
+  );
+}
+
+function randomBetween(min, max){
+  return min + Math.random() * (max - min);
+}
+
+function makeHeartOnSurface(surface, order){
+  const margin = Math.min(38, Math.max(18, surface.w * 0.22));
+  const minX = surface.x + margin;
+  const maxX = surface.x + surface.w - margin;
+  const x = randomBetween(minX, Math.max(minX, maxX));
+  const y = surface.y - 34;
+  return {
+    x,
+    y,
+    g:false,
+    order,
+    surfaceKind: surface.kind
+  };
+}
+
+function zoneForHeart(order){
+  // Divide o mapa em 7 faixas.
+  // O coração continua "aleatório", mas nasce em uma região diferente do mapa.
+  const startX = 520;
+  const endX = portal.x - 520;
+  const zoneW = (endX - startX) / HEART_TOTAL;
+  return {
+    start: startX + zoneW * order,
+    end: startX + zoneW * (order + 1)
+  };
+}
+
+function isFarFromPlayer(heart){
+  const px = player.x + player.w / 2;
+  return Math.abs(heart.x - px) >= MIN_HEART_DISTANCE_FROM_PLAYER;
+}
+
+function chooseNextHeartPosition(){
+  const all = heartSurfaceCandidates();
+  const px = player.x + player.w / 2;
+
+  // Aqui está a correção principal:
+  // antes o código favorecia plataformas à frente.
+  // agora ele sorteia qualquer plataforma do mapa inteiro,
+  // seja no começo, no meio, no final, atrás ou na frente.
+  for(let attempt=0; attempt<220; attempt++){
+    const surface = all[Math.floor(Math.random() * all.length)];
+    const heart = makeHeartOnSurface(surface, currentHeartIndex + 1);
+
+    // A única regra é: não pode nascer perto dela.
+    if(isFarFromPlayer(heart)) return heart;
+  }
+
+  // Segunda tentativa: cria uma lista de plataformas realmente longe dela.
+  const farSurfaces = all.filter(surface => {
+    const leftDistance = Math.abs(surface.x - px);
+    const rightDistance = Math.abs(surface.x + surface.w - px);
+    const centerDistance = Math.abs(surface.x + surface.w/2 - px);
+    return Math.max(leftDistance, rightDistance, centerDistance) >= MIN_HEART_DISTANCE_FROM_PLAYER;
+  });
+
+  if(farSurfaces.length > 0){
+    for(let attempt=0; attempt<160; attempt++){
+      const surface = farSurfaces[Math.floor(Math.random() * farSurfaces.length)];
+      const heart = makeHeartOnSurface(surface, currentHeartIndex + 1);
+      if(isFarFromPlayer(heart)) return heart;
+    }
+  }
+
+  // Plano de segurança: se por algum motivo não conseguir sortear,
+  // escolhe o ponto mais distante possível da personagem.
+  let best = null;
+  let bestDistance = -1;
+
+  for(const surface of all){
+    const points = [
+      surface.x + 24,
+      surface.x + surface.w / 2,
+      surface.x + surface.w - 24
+    ];
+
+    for(const x of points){
+      const heart = {
+        x,
+        y: surface.y - 34,
+        g:false,
+        order: currentHeartIndex + 1,
+        surfaceKind: surface.kind
+      };
+
+      const d = Math.abs(heart.x - px);
+      if(d > bestDistance){
+        bestDistance = d;
+        best = heart;
+      }
+    }
+  }
+
+  return best;
+}
+
+function spawnNextHeart(){
+  if(currentHeartIndex >= HEART_TOTAL){
+    activeHeart = null;
+    return;
+  }
+  activeHeart = chooseNextHeartPosition();
+}
+
+function resetHearts(){
+  currentHeartIndex = 0;
+  collectedHearts.length = 0;
+  activeHeart = null;
+  scoreEl.textContent = 0;
+  spawnNextHeart();
+}
+
+function collectedHeartCount(){
+  return currentHeartIndex;
+}
+
+function moveCrates(){
+  for(const c of crates){
+    c.vx *= 0.90;
+    if(Math.abs(c.vx)<0.05) c.vx=0;
+    c.x += c.vx;
+    if(c.x<20) c.x=20;
+    if(c.x+c.w>world.w-20) c.x=world.w-20-c.w;
+
+    for(const s of [...groundSegments, ...islands, ...rearIslands]){
+      if(rects(c,s)){
+        if(c.vx>0) c.x=s.x-c.w;
+        if(c.vx<0) c.x=s.x+s.w;
+        c.vx=0;
+      }
+    }
+    for(const other of crates){
+      if(other===c) continue;
+      if(rects(c,other)){
+        if(c.vx>0) c.x=other.x-c.w;
+        if(c.vx<0) c.x=other.x+other.w;
+        c.vx=0;
+      }
+    }
+  }
+}
+
+function collidePlayerX(){
+  for(const s of allSolids()){
+    if(rects(player,s)){
+      if(s.type==='crate'){
+        let push = player.face;
+        if(player.vx>0.05) push=1;
+        if(player.vx<-0.05) push=-1;
+        s.vx += push*3.2;
+        if(push>0) player.x=s.x-player.w;
+        if(push<0) player.x=s.x+s.w;
+        player.vx *= 0.65;
+      } else {
+        if(player.vx>0) player.x=s.x-player.w;
+        if(player.vx<0) player.x=s.x+s.w;
+        player.vx=0;
+      }
+    }
+  }
+}
+
+function collidePlayerY(){
+  player.ground=false;
+  for(const s of allSolids()){
+    if(rects(player,s)){
+      if(player.vy>0){
+        player.y=s.y-player.h;
+        player.vy=0;
+        player.ground=true;
+      } else if(player.vy<0){
+        player.y=s.y+s.h;
+        player.vy=0;
+      }
+    }
+  }
+}
+
+function hitSpike(){
+  const hurt={x:player.x+8,y:player.y+12,w:player.w-16,h:player.h-14};
+  for(const sp of spikes) if(rects(hurt,sp)) return true;
+  return false;
+}
+
+function respawn(){
+  player.x=player.checkpointX;
+  player.y=groundY-player.h;
+  player.vx=0;
+  player.vy=0;
+}
+
+function update(){
+  if(!started||finished) return;
+
+  moveCrates();
+
+  if(keys.left){ player.vx -= speed; player.face=-1; }
+  if(keys.right){ player.vx += speed; player.face=1; }
+
+  player.vx *= friction;
+  player.vx = Math.max(-maxSpeed, Math.min(maxSpeed, player.vx));
+
+  if(keys.jump && player.ground){
+    player.vy = -jumpPower;
+    player.ground=false;
+  }
+
+  player.vy += gravity;
+  player.x += player.vx;
+  collidePlayerX();
+
+  player.y += player.vy;
+  collidePlayerY();
+
+  if(player.x<0) player.x=0;
+  if(player.x+player.w>world.w) player.x=world.w-player.w;
+
+  if(hitSpike() || player.y > world.h+120) respawn();
+
+  if(activeHeart && rects(player, {x:activeHeart.x-20,y:activeHeart.y-20,w:40,h:40})){
+    activeHeart.g = true;
+    collectedHearts.push(activeHeart);
+    currentHeartIndex++;
+    scoreEl.textContent = currentHeartIndex;
+
+    if(currentHeartIndex === 1){
+      speechBubbleText = 'onde estão os outros corações? vou ter que procurar!';
+      speechBubbleTimer = 260;
+    }
+
+    spawnNextHeart();
+  }
+
+  for(const cp of checkpoints){
+    if(player.x>cp && player.checkpointX<cp) player.checkpointX=cp;
+  }
+
+  if(rects(player, portal)){
+    const collected = collectedHeartCount();
+    if(collected === HEART_TOTAL){
+      finish();
+    }else{
+      portalMessageTimer = 120;
+      player.x = portal.x - player.w - 12;
+      player.vx = -2;
+    }
+  }
+
+  if(portalMessageTimer > 0) portalMessageTimer--;
+  if(speechBubbleTimer > 0) speechBubbleTimer--;
+
+  const target = player.x - W/(2*scale);
+  cam.x += (target-cam.x)*0.08;
+  cam.x = Math.max(0, Math.min(cam.x, world.w - W/scale));
+
+  frameTick++;
+}
+
+function finish(){
+  finished=true;
+  endScreen.classList.remove('hide');
+  setTimeout(()=>{ window.location.href = ARQUIVO_DA_SURPRESA; }, 1700);
+}
+
+
+function drawTintedImage(img, x, y, w, h, tint='rgba(255,180,214,0.22)', glow='rgba(255,210,235,0.16)'){
+  ctx.save();
+  ctx.drawImage(img, x, y, w, h);
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = tint;
+  ctx.fillRect(x, y, w, h);
+  ctx.globalCompositeOperation = 'screen';
+  ctx.fillStyle = glow;
+  ctx.fillRect(x, y, w, h);
+  ctx.restore();
+}
+
+function drawTinyFlower(x, y, size=1){
+  const petal = 2.9*size*scale;
+  ctx.fillStyle = '#ff9ecf';
+  for(let a=0;a<6;a++){
+    const ang = (Math.PI*2/6)*a;
+    ctx.beginPath();
+    ctx.ellipse(x + Math.cos(ang)*4.4*size*scale, y + Math.sin(ang)*4.4*size*scale, petal, petal*0.8, ang, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#fff1a8';
+  ctx.beginPath();
+  ctx.arc(x, y, 2.2*size*scale, 0, Math.PI*2);
+  ctx.fill();
+}
+
+function drawCandySparkles(){
+  const t = Date.now()*0.001;
+  for(let i=0;i<26;i++){
+    const x = ((i*187 - cam.x*0.12)%(W+140)+W+140)%(W+140)-70;
+    const y = 110 + (i%6)*42 + Math.sin(t*1.8 + i)*10;
+    const r = (i%3===0 ? 3.2 : 2.2)*scale;
+    ctx.save();
+    ctx.globalAlpha = 0.72;
+    ctx.fillStyle = i%2===0 ? '#ffd6ee' : '#fff2b4';
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+
+function drawSky(){
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#ffc7ea');
+  sky.addColorStop(0.34,'#ffd9f3');
+  sky.addColorStop(0.68,'#ffe7f6');
+  sky.addColorStop(1,'#fff4fb');
+  ctx.fillStyle=sky;
+  ctx.fillRect(0,0,W,H);
+
+  // sol/docinho
+  const sunGrad = ctx.createRadialGradient(W-72,74,8,W-72,74,42);
+  sunGrad.addColorStop(0,'rgba(255,247,190,.98)');
+  sunGrad.addColorStop(1,'rgba(255,199,228,.35)');
+  ctx.fillStyle=sunGrad;
+  ctx.beginPath();
+  ctx.arc(W-72,74,36,0,Math.PI*2);
+  ctx.fill();
+
+  for(const c of decoClouds){
+    const x=((c.x-cam.x*0.06)%(W+220)+W+220)%(W+220)-110;
+    drawTintedImage(imgs.cloud, x, c.y, imgs.cloud.width*c.s, imgs.cloud.height*c.s, 'rgba(255,194,228,0.18)', 'rgba(255,255,255,0.16)');
+  }
+
+  drawCandySparkles();
+  drawHill('#f8b5d8', 0.08, 640, 42);
+  drawHill('#eba6cb', 0.16, 700, 70);
+  drawHill('rgba(232,154,196,0.55)', 0.24, 742, 46);
+}
+
+function drawHill(color,parallax,baseY,amp){
+  ctx.save();
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  const off=-cam.x*parallax;
+  ctx.moveTo(-80,H);
+  for(let x=-80; x<=W+120; x+=90){
+    const wx=x-off;
+    const y=worldToScreen(0, baseY + Math.sin(wx*0.01)*amp).y;
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(W+120,H);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawDeco(){
+  for(const t of decoTrees){
+    const sx = (t.x - cam.x*t.layer)*scale;
+    const groundS = worldToScreen(0, groundY).y;
+    const w = imgs.tree.width*t.size*scale, h = imgs.tree.height*t.size*scale;
+    if(sx<-w || sx>W+w) continue;
+    drawTintedImage(imgs.tree, sx, groundS-h+8*scale, w, h, 'rgba(255,160,205,0.24)', 'rgba(255,210,240,0.14)');
+
+    // flores no chão perto das árvores
+    for(let k=0;k<2;k++){
+      const fx = sx + (18 + k*18 + (t.x%13))*scale;
+      const fy = groundS - 6*scale - k*1.5*scale;
+      drawTinyFlower(fx, fy, 0.78 + k*0.08);
+    }
+  }
+
+  for(const b of decoBushes){
+    const sx=(b.x-cam.x*b.layer)*scale;
+    const gy=worldToScreen(0,b.y).y;
+    const mul = (0.92 + (b.layer*0.18));
+    const w=imgs.bush.width*mul*scale, h=imgs.bush.height*mul*scale;
+    if(sx<-w || sx>W+w) continue;
+    drawTintedImage(imgs.bush, sx, gy-h, w, h, 'rgba(255,145,196,0.24)', 'rgba(255,222,242,0.12)');
+
+    // mini flores
+    drawTinyFlower(sx + w*0.34, gy - h*0.38, 0.54);
+    if((b.x/10)%2 > 0.7) drawTinyFlower(sx + w*0.66, gy - h*0.32, 0.48);
+  }
+}
+
+function drawPhotoSpots(){
+  const t = Date.now()*0.0013;
+  for(let i=0;i<photoSpots.length;i++){
+    const p = photoSpots[i];
+    const floatY = Math.sin(t*p.drift + i*0.9) * 10;
+    const sway = Math.sin(t*0.7 + i*0.65) * 0.08;
+    const anchorX = (p.x - cam.x*p.layer)*scale;
+    const anchorY = worldToScreen(0, p.y).y + floatY*scale;
+    const w = p.w * scale;
+    const h = p.h * scale;
+    if(anchorX < -w-60 || anchorX > W+60) continue;
+
+    ctx.save();
+    ctx.translate(anchorX + w/2, anchorY + (h+18*scale)/2);
+    ctx.rotate(sway);
+
+    const sx = -w/2;
+    const sy = -(h+18*scale)/2;
+
+    ctx.fillStyle = 'rgba(0,0,0,.10)';
+    ctx.fillRect(sx + 6*scale, sy + 8*scale, w, h + 18*scale);
+
+    ctx.strokeStyle = 'rgba(255,189,214,.82)';
+    ctx.lineWidth = 2.5*scale;
+    ctx.beginPath();
+    ctx.moveTo(0, sy + h + 18*scale);
+    ctx.quadraticCurveTo(10*scale, sy + h + 28*scale, 18*scale, sy + h + 38*scale);
+    ctx.stroke();
+
+    ctx.fillStyle = '#fffdfd';
+    ctx.fillRect(sx, sy, w, h + 18*scale);
+    ctx.strokeStyle = 'rgba(255,255,255,.88)';
+    ctx.lineWidth = 2*scale;
+    ctx.strokeRect(sx, sy, w, h + 18*scale);
+
+    const img = photoImgs[p.photo % photoImgs.length];
+    const pad = 7*scale;
+    const innerX = sx + pad;
+    const innerY = sy + pad;
+    const innerW = w - pad*2;
+    const innerH = h - pad*1.25;
+    if(img && img.complete && img.naturalWidth > 0){
+      const ratio = Math.max(innerW / img.naturalWidth, innerH / img.naturalHeight);
+      const dw = img.naturalWidth * ratio;
+      const dh = img.naturalHeight * ratio;
+      const dx = innerX + (innerW - dw)/2;
+      const dy = innerY + (innerH - dh)/2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(innerX, innerY, innerW, innerH);
+      ctx.clip();
+      ctx.drawImage(img, dx, dy, dw, dh);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#ffd6ee';
+      ctx.fillRect(innerX, innerY, innerW, innerH);
+      ctx.fillStyle = '#8c1d62';
+      ctx.font = `${10*scale}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('foto', innerX + innerW/2, innerY + innerH/2 + 3*scale);
+    }
+
+    if(p.w >= 60){
+      ctx.fillStyle = '#ff5f97';
+      ctx.font = `${11*scale}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('♥', 0, sy + h + 12*scale);
+    } else {
+      ctx.fillStyle = 'rgba(255,95,162,.85)';
+      ctx.beginPath();
+      ctx.arc(0, sy + h + 9*scale, 2.6*scale, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+function drawPlatformDecorations(){
+  const t = Date.now()*0.003;
+  for(let i=0;i<platformDecos.length;i++){
+    const d = platformDecos[i];
+    const s = worldToScreen(d.x, d.y);
+    if(s.x < -40 || s.x > W+40) continue;
+    ctx.save();
+    if(d.kind === 'bush'){
+      const w = imgs.bush.width * d.size * scale;
+      const h = imgs.bush.height * d.size * scale;
+      drawTintedImage(imgs.bush, s.x - w/2, s.y - h + 4*scale, w, h, 'rgba(255,150,196,0.24)', 'rgba(255,230,246,0.08)');
+    } else if(d.kind === 'heart'){
+      const bob = Math.sin(t + i)*2.5*scale;
+      ctx.fillStyle = '#ff6faa';
+      ctx.font = `bold ${15*d.size*scale}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('♥', s.x, s.y - 6*scale + bob);
+    } else if(d.kind === 'flower'){
+      const bob = Math.sin(t*0.8 + i)*1.6*scale;
+      const cx = s.x;
+      const cy = s.y - 7*scale + bob;
+      const petal = 3.8*d.size*scale;
+      ctx.fillStyle = '#ff9ecc';
+      for(let a=0;a<6;a++){
+        const ang = (Math.PI*2/6)*a;
+        ctx.beginPath();
+        ctx.ellipse(cx + Math.cos(ang)*5*scale, cy + Math.sin(ang)*5*scale, petal, petal*0.85, ang, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.fillStyle = '#fff0a8';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2.9*scale, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = '#d07aaa';
+      ctx.lineWidth = 1.3*scale;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + 4*scale);
+      ctx.lineTo(cx, cy + 11*scale);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+function drawTiledBlock(rect, opts={}){
+  const alpha = opts.alpha ?? 1;
+  const offsetX = opts.offsetX ?? 0;
+  const offsetY = opts.offsetY ?? 0;
+  const shrink = opts.shrink ?? 1;
+  const topH = 32;
+  const width = Math.max(32, rect.w * shrink);
+  const height = Math.max(40, rect.h * shrink);
+  const baseX = rect.x + offsetX;
+  const baseY = rect.y + offsetY;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  for(let x=0; x<width; x+=32){
+    const top = worldToScreen(baseX + x, baseY);
+    drawTintedImage(imgs.grass, Math.floor(top.x), Math.floor(top.y), 32*scale, 32*scale, 'rgba(255,177,216,0.28)', 'rgba(255,230,246,0.08)');
+
+    for(let y=topH; y<height; y+=32){
+      const s = worldToScreen(baseX + x, baseY + y);
+      drawTintedImage(imgs.dirt, Math.floor(s.x), Math.floor(s.y), 32*scale, 32*scale, 'rgba(255,190,220,0.22)', 'rgba(255,245,250,0.05)');
+    }
+  }
+
+  // brilho de topo
+  const topS = worldToScreen(baseX, baseY);
+  ctx.fillStyle = 'rgba(255,241,248,0.22)';
+  ctx.fillRect(topS.x, topS.y, width*scale, 6*scale);
+
+  ctx.restore();
+}
+
+function drawFloatingPlatform(rect, opts={}){
+  const alpha = opts.alpha ?? 1;
+  const offsetX = opts.offsetX ?? 0;
+  const offsetY = opts.offsetY ?? 0;
+  const shrink = opts.shrink ?? 1;
+  const base = {
+    x: rect.x + offsetX,
+    y: rect.y + offsetY,
+    w: rect.w * shrink,
+    h: rect.h * shrink
+  };
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  for(let x=0; x<base.w; x+=32){
+    const top = worldToScreen(base.x + x, base.y);
+    drawTintedImage(imgs.grass, Math.floor(top.x), Math.floor(top.y), 32*scale, 32*scale, 'rgba(255,177,216,0.30)', 'rgba(255,230,246,0.08)');
+
+    const dirt = worldToScreen(base.x + x, base.y + 24);
+    drawTintedImage(imgs.dirt, Math.floor(dirt.x), Math.floor(dirt.y), 32*scale, 24*scale, 'rgba(255,191,221,0.24)', 'rgba(255,244,249,0.05)');
+  }
+
+  const s = worldToScreen(base.x, base.y + base.h + 4);
+  ctx.fillStyle = 'rgba(124,88,120,.12)';
+  ctx.beginPath();
+  ctx.ellipse(
+    s.x + (base.w*scale)/2,
+    s.y,
+    base.w*0.32*scale,
+    5*scale,
+    0,
+    0,
+    Math.PI*2
+  );
+  ctx.fill();
+
+  // toquinhos de grama/fofura em cima
+  const left = worldToScreen(base.x + 16, base.y).x;
+  const right = worldToScreen(base.x + base.w - 16, base.y).x;
+  const y = worldToScreen(base.x, base.y).y + 8*scale;
+  for(let tx=left; tx<right; tx+=22*scale){
+    drawTinyFlower(tx, y - 3*scale, 0.4);
+  }
+
+  ctx.restore();
+}
+
+function drawGroundSegments(){
+  for(const g of groundSegments) drawTiledBlock(g);
+}
+
+function drawIslands(){
+  for(const p of rearIslands){
+    drawFloatingPlatform(p, { alpha:0.66, offsetX:14, offsetY:-8, shrink:0.90 });
+  }
+
+  for(const p of islands){
+    drawFloatingPlatform(p);
+  }
+}
+
+function drawRopes(){
+  for(const r of ropes){
+    const a = worldToScreen(r.x1, r.y1);
+    const b = worldToScreen(r.x2, r.y2);
+    const midx = (a.x+b.x)/2;
+    const midy = Math.max(a.y, b.y) + 18*scale;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(214,139,179,.92)';
+    ctx.lineWidth = 3*scale;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.quadraticCurveTo(midx, midy, b.x, b.y);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255,215,233,.96)';
+    ctx.beginPath(); ctx.arc(a.x, a.y, 3*scale, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(b.x, b.y, 3*scale, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawLadders(){
+  for(const l of ladders){
+    const x = worldToScreen(l.x, l.y).x;
+    const topY = worldToScreen(l.x, l.y).y;
+    const segments = Math.ceil(l.h / 64);
+    for(let i=0;i<segments;i++){
+      ctx.drawImage(imgs.ladder, Math.floor(x), Math.floor(topY + i*64*scale), 32*scale, 64*scale);
+    }
+  }
+}
+
+function drawCrates(){
+  for(const c of crates){
+    const s=worldToScreen(c.x,c.y);
+    drawTintedImage(imgs.crate, Math.floor(s.x), Math.floor(s.y), c.w*scale, c.h*scale, 'rgba(255,175,209,0.24)', 'rgba(255,245,250,0.08)');
+  }
+}
+
+function drawSpikes(){
+  for(const sp of spikes){
+    const count=Math.ceil(sp.w/32);
+    for(let i=0;i<count;i++){
+      const s=worldToScreen(sp.x+i*32, sp.y);
+      drawTintedImage(imgs.spike, Math.floor(s.x), Math.floor(s.y), 32*scale, 16*scale, 'rgba(255,172,205,0.18)', 'rgba(255,255,255,0.05)');
+    }
+  }
+}
+
+function drawHearts(){
+  if(!activeHeart) return;
+
+  const t = Date.now()*0.004;
+  const h = activeHeart;
+
+  const bob = Math.sin(t + currentHeartIndex) * 6;
+  const pulse = 1 + 0.12*Math.sin(t*1.5 + currentHeartIndex*0.8);
+  const s = worldToScreen(h.x, h.y + bob);
+  const size = 38 * pulse * scale;
+
+  ctx.save();
+
+  const grad = ctx.createRadialGradient(s.x, s.y, 2*scale, s.x, s.y, 26*scale*pulse);
+  grad.addColorStop(0, 'rgba(255,120,170,0.45)');
+  grad.addColorStop(0.55, 'rgba(255,120,170,0.18)');
+  grad.addColorStop(1, 'rgba(255,120,170,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(s.x, s.y, 26*scale*pulse, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.42)';
+  ctx.lineWidth = 2.2*scale;
+  ctx.beginPath();
+  ctx.arc(s.x, s.y, 19*scale*pulse, 0, Math.PI*2);
+  ctx.stroke();
+
+  ctx.shadowColor = 'rgba(255,80,150,0.55)';
+  ctx.shadowBlur = 12*scale;
+  ctx.drawImage(imgs.heart, Math.floor(s.x-size/2), Math.floor(s.y-size/2), size, size);
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.beginPath();
+  ctx.arc(s.x - 10*scale, s.y - 10*scale, 2.1*scale, 0, Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(s.x + 11*scale, s.y - 8*scale, 1.6*scale, 0, Math.PI*2);
+  ctx.fill();
+
+  // Mostra qual coração é: 1, depois 2, depois 3...
+  ctx.lineWidth = 3.5*scale;
+  ctx.strokeStyle = 'rgba(140,29,98,0.95)';
+  ctx.fillStyle = 'rgba(255,255,255,0.98)';
+  ctx.font = `bold ${13*scale}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.strokeText(h.order, s.x, s.y+4.5*scale);
+  ctx.fillText(h.order, s.x, s.y+4.5*scale);
+
+  ctx.restore();
+}
+
+function drawSigns(){
+  ctx.save();
+  ctx.font=`${13*scale}px Arial`;
+  ctx.textAlign='center';
+  for(const sign of signs){
+    const s=worldToScreen(sign.x, sign.y);
+    ctx.drawImage(imgs.sign, Math.floor(s.x-16*scale), Math.floor(s.y-32*scale), 32*scale, 32*scale);
+    ctx.lineWidth=3*scale;
+    ctx.strokeStyle='rgba(255,255,255,.82)';
+    ctx.fillStyle='rgba(122,29,85,.92)';
+    ctx.strokeText(sign.text, s.x+8*scale, s.y-38*scale);
+    ctx.fillText(sign.text, s.x+8*scale, s.y-38*scale);
+  }
+  ctx.restore();
+}
+
+function drawPortal(){
+  const s=worldToScreen(portal.x, portal.y);
+  const collected = collectedHeartCount();
+  drawTintedImage(imgs.portal, Math.floor(s.x), Math.floor(s.y), portal.w*scale, portal.h*scale, 'rgba(255,179,220,0.18)', 'rgba(255,238,247,0.08)');
+  drawTinyFlower(s.x + 10*scale, s.y + 12*scale, 0.55);
+  drawTinyFlower(s.x + portal.w*scale - 12*scale, s.y + 16*scale, 0.55);
+
+  ctx.fillStyle='#8c1d62';
+  ctx.font=`${15*scale}px Arial`;
+  ctx.textAlign='center';
+  ctx.fillText(collected === HEART_TOTAL ? 'surpresa' : `${collected}/${HEART_TOTAL} corações`, s.x+portal.w*scale/2, s.y-8*scale);
+
+  if(portalMessageTimer > 0){
+    ctx.save();
+    ctx.font=`${15*scale}px Arial`;
+    ctx.textAlign='center';
+    ctx.lineWidth=4*scale;
+    ctx.strokeStyle='rgba(255,255,255,.9)';
+    ctx.fillStyle='#8c1d62';
+    const msg = 'pegue os 7 corações primeiro ❤️';
+    ctx.strokeText(msg, s.x+portal.w*scale/2, s.y-34*scale);
+    ctx.fillText(msg, s.x+portal.w*scale/2, s.y-34*scale);
+    ctx.restore();
+  }
+}
+
+function wrapText(ctx, text, maxWidth){
+  const words = text.split(' ');
+  const lines = [];
+  let line = '';
+
+  for(const word of words){
+    const test = line ? line + ' ' + word : word;
+    if(ctx.measureText(test).width > maxWidth && line){
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+
+  if(line) lines.push(line);
+  return lines;
+}
+
+function drawSpeechBubble(){
+  if(speechBubbleTimer <= 0 || !speechBubbleText) return;
+
+  const s = worldToScreen(player.x, player.y);
+  const bubbleW = Math.min(285*scale, W*0.72);
+  const padding = 12*scale;
+  const fontSize = 13*scale;
+
+  ctx.save();
+  ctx.font = `bold ${fontSize}px Arial`;
+  ctx.textAlign = 'left';
+
+  const lines = wrapText(ctx, speechBubbleText, bubbleW - padding*2);
+  const lineH = 18*scale;
+  const bubbleH = padding*2 + lines.length * lineH;
+
+  let x = s.x + player.w*scale/2 - bubbleW/2;
+  let y = s.y - bubbleH - 42*scale;
+
+  x = Math.max(12*scale, Math.min(W - bubbleW - 12*scale, x));
+  y = Math.max(72*scale, y);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.94)';
+  ctx.strokeStyle = 'rgba(255,95,162,0.85)';
+  ctx.lineWidth = 2.4*scale;
+
+  ctx.beginPath();
+  ctx.roundRect(x, y, bubbleW, bubbleH, 16*scale);
+  ctx.fill();
+  ctx.stroke();
+
+  // pontinha do balão
+  const tipX = s.x + player.w*scale/2;
+  const tipY = y + bubbleH;
+  ctx.beginPath();
+  ctx.moveTo(Math.max(x+20*scale, Math.min(x+bubbleW-20*scale, tipX - 8*scale)), tipY - 1*scale);
+  ctx.lineTo(tipX, tipY + 14*scale);
+  ctx.lineTo(Math.max(x+20*scale, Math.min(x+bubbleW-20*scale, tipX + 8*scale)), tipY - 1*scale);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#7a1d55';
+  for(let i=0;i<lines.length;i++){
+    ctx.fillText(lines[i], x + padding, y + padding + (i+0.8)*lineH);
+  }
+
+  ctx.restore();
+}
+
+function drawPlayer(){
+  const s=worldToScreen(player.x, player.y);
+  let frame=0;
+  const walking=Math.abs(player.vx)>0.35 && player.ground;
+
+  if(!player.ground) frame=9;
+  else if(walking) frame=1 + Math.floor(frameTick/6)%8;
+  else frame=0;
+
+  const sw=96, sh=128, dw=84*scale, dh=112*scale;
+  const dx=s.x + player.w*scale/2 - dw/2;
+  const dy=s.y + player.h*scale - dh + 8*scale;
+
+  ctx.fillStyle='rgba(0,0,0,.22)';
+  ctx.beginPath();
+  ctx.ellipse(s.x+player.w*scale/2, s.y+player.h*scale+8*scale, 20*scale, 6*scale, 0,0,Math.PI*2);
+  ctx.fill();
+
+  if(player.face===-1){
+    ctx.save();
+    ctx.translate(dx+dw/2, dy+dh/2);
+    ctx.scale(-1,1);
+    ctx.drawImage(imgs.player, frame*sw,0,sw,sh,-dw/2,-dh/2,dw,dh);
+    ctx.restore();
+  } else {
+    ctx.drawImage(imgs.player, frame*sw,0,sw,sh,dx,dy,dw,dh);
+  }
+}
+
+function draw(){
+  drawSky();
+  drawDeco();
+  drawPhotoSpots();
+  drawGroundSegments();
+  drawRopes();
+  drawLadders();
+  drawIslands();
+  drawPlatformDecorations();
+  drawCrates();
+  drawSpikes();
+  drawHearts();
+  drawPortal();
+  drawPlayer();
+  drawSpeechBubble();
+}
+
+function loop(){
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+loop();
+
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  speechBubbleTimer = 0;
+  speechBubbleText = '';
+  resetHearts();
+  startMusic();
+  started=true;
+  startScreen.classList.add('hide');
+});
+
+document.getElementById('openBtn').addEventListener('click', ()=>{
+  window.location.href = ARQUIVO_DA_SURPRESA;
+});
+
+musicBtn.addEventListener('click', ()=>{
+  toggleMusic();
+});
+
+window.addEventListener('keydown', e=>{
+  const k=e.key.toLowerCase();
+  if(k==='arrowleft'||k==='a') keys.left=true;
+  if(k==='arrowright'||k==='d') keys.right=true;
+  if(k===' '||k==='arrowup'||k==='w') keys.jump=true;
+});
+
+window.addEventListener('keyup', e=>{
+  const k=e.key.toLowerCase();
+  if(k==='arrowleft'||k==='a') keys.left=false;
+  if(k==='arrowright'||k==='d') keys.right=false;
+  if(k===' '||k==='arrowup'||k==='w') keys.jump=false;
+});
+
+function hold(id,key){
+  const b=document.getElementById(id);
+  const on=e=>{e.preventDefault();keys[key]=true;};
+  const off=e=>{e.preventDefault();keys[key]=false;};
+  b.addEventListener('touchstart',on,{passive:false});
+  b.addEventListener('touchend',off,{passive:false});
+  b.addEventListener('touchcancel',off,{passive:false});
+  b.addEventListener('mousedown',on);
+  b.addEventListener('mouseup',off);
+  b.addEventListener('mouseleave',off);
+}
+hold('left','left');
+hold('right','right');
+hold('jump','jump');
+</script>
+</body>
+</html>
