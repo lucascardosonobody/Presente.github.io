@@ -262,43 +262,43 @@ const groundSegments = [
 // Não tem blocos dentro de blocos e não tem salto absurdo entre áreas.
 const islands = [
   // caminho 1: saída do início até o primeiro chão
-  {x:630, y:690, w:125, h:30},
-  {x:922, y:620, w:122, h:30},
+  {x:642, y:690, w:100, h:26},
+  {x:934, y:620, w:98, h:26},
 
   // caminho 2
-  {x:1884, y:680, w:122, h:30},
-  {x:2174, y:610, w:122, h:30},
+  {x:1896, y:680, w:98, h:26},
+  {x:2186, y:610, w:98, h:26},
 
   // caminho 3
-  {x:3164, y:655, w:122, h:30},
-  {x:3404, y:585, w:122, h:30},
+  {x:3176, y:655, w:98, h:26},
+  {x:3416, y:585, w:98, h:26},
 
   // caminho 4
-  {x:4334, y:680, w:122, h:30},
-  {x:4604, y:610, w:122, h:30},
+  {x:4346, y:680, w:98, h:26},
+  {x:4616, y:610, w:98, h:26},
 
   // caminho 5
-  {x:5524, y:675, w:122, h:30},
-  {x:5794, y:600, w:122, h:30},
+  {x:5536, y:675, w:98, h:26},
+  {x:5806, y:600, w:98, h:26},
 
   // caminho 6
-  {x:6814, y:680, w:122, h:30},
-  {x:7094, y:600, w:122, h:30},
-  {x:7334, y:675, w:122, h:30},
+  {x:6826, y:680, w:98, h:26},
+  {x:7106, y:600, w:98, h:26},
+  {x:7346, y:675, w:98, h:26},
 
   // caminho 7: chegada ao portal
-  {x:8164, y:680, w:122, h:30},
-  {x:8444, y:600, w:122, h:30},
-  {x:8724, y:690, w:122, h:30},
+  {x:8176, y:680, w:98, h:26},
+  {x:8456, y:600, w:98, h:26},
+  {x:8736, y:690, w:98, h:26},
 
-  // poucas plataformas extras para exploração/corações, também menores
-  {x:1280, y:530, w:110, h:30},
-  {x:2600, y:500, w:110, h:30},
-  {x:3880, y:500, w:110, h:30},
-  {x:5160, y:500, w:110, h:30},
-  {x:6440, y:500, w:110, h:30},
-  {x:7720, y:500, w:110, h:30},
-  {x:8940, y:560, w:110, h:30}
+  // poucas plataformas extras para exploração/corações, bem menores
+  {x:1292, y:530, w:86, h:26},
+  {x:2612, y:500, w:86, h:26},
+  {x:3892, y:500, w:86, h:26},
+  {x:5172, y:500, w:86, h:26},
+  {x:6452, y:500, w:86, h:26},
+  {x:7732, y:500, w:86, h:26},
+  {x:8952, y:560, w:86, h:26}
 ];
 
 // Plataformas do fundo, acessíveis e reposicionadas para apoiar os corações.
@@ -319,12 +319,12 @@ const spikes = [
 
 // Escadas são apoio visual e não formam blocos.
 const ladders = [
-  {x:922, y:646, h:64},
-  {x:2174, y:636, h:64},
-  {x:3404, y:611, h:64},
-  {x:5794, y:626, h:64},
-  {x:7094, y:626, h:64},
-  {x:8444, y:626, h:64}
+  {x:934, y:646, h:60},
+  {x:2186, y:636, h:60},
+  {x:3416, y:611, h:60},
+  {x:5806, y:626, h:60},
+  {x:7106, y:626, h:60},
+  {x:8456, y:626, h:60}
 ];
 
 // Cordas removidas nesta versão para não parecerem plataformas sólidas.
@@ -456,37 +456,37 @@ const photoSpots = [
   {x:8540, y: 470, w: 44, h: 44, photo: 18, layer: 1, drift: 0.78}
 ];
 const platformDecos = [
-  {x:658, y:684, kind:'flower', size:0.78}, {x:724, y:684, kind:'heart', size:0.72},
-  {x:950, y:614, kind:'bush', size:0.34}, {x:1010, y:614, kind:'flower', size:0.78},
+  {x:670, y:684, kind:'flower', size:0.62},
+  {x:965, y:614, kind:'bush', size:0.28},
 
-  {x:1910, y:674, kind:'flower', size:0.78}, {x:1970, y:674, kind:'heart', size:0.72},
-  {x:2200, y:604, kind:'bush', size:0.34}, {x:2260, y:604, kind:'flower', size:0.78},
+  {x:1922, y:674, kind:'flower', size:0.62},
+  {x:2212, y:604, kind:'bush', size:0.28},
 
-  {x:3190, y:649, kind:'flower', size:0.78}, {x:3250, y:649, kind:'heart', size:0.72},
-  {x:3430, y:579, kind:'bush', size:0.34}, {x:3490, y:579, kind:'flower', size:0.78},
+  {x:3202, y:649, kind:'flower', size:0.62},
+  {x:3442, y:579, kind:'bush', size:0.28},
 
-  {x:4360, y:674, kind:'flower', size:0.78}, {x:4420, y:674, kind:'heart', size:0.72},
-  {x:4630, y:604, kind:'bush', size:0.34}, {x:4690, y:604, kind:'flower', size:0.78},
+  {x:4372, y:674, kind:'flower', size:0.62},
+  {x:4642, y:604, kind:'bush', size:0.28},
 
-  {x:5550, y:669, kind:'flower', size:0.78}, {x:5610, y:669, kind:'heart', size:0.72},
-  {x:5820, y:594, kind:'bush', size:0.34}, {x:5880, y:594, kind:'flower', size:0.78},
+  {x:5562, y:669, kind:'flower', size:0.62},
+  {x:5832, y:594, kind:'bush', size:0.28},
 
-  {x:6840, y:674, kind:'flower', size:0.78}, {x:6900, y:674, kind:'heart', size:0.72},
-  {x:7120, y:594, kind:'bush', size:0.34}, {x:7180, y:594, kind:'flower', size:0.78},
-  {x:7360, y:669, kind:'flower', size:0.78}, {x:7420, y:669, kind:'heart', size:0.72},
+  {x:6852, y:674, kind:'flower', size:0.62},
+  {x:7132, y:594, kind:'bush', size:0.28},
+  {x:7372, y:669, kind:'flower', size:0.62},
 
-  {x:8190, y:674, kind:'flower', size:0.78}, {x:8250, y:674, kind:'heart', size:0.72},
-  {x:8470, y:594, kind:'bush', size:0.34}, {x:8530, y:594, kind:'flower', size:0.78},
-  {x:8750, y:684, kind:'flower', size:0.78}, {x:8810, y:684, kind:'heart', size:0.72},
+  {x:8202, y:674, kind:'flower', size:0.62},
+  {x:8482, y:594, kind:'bush', size:0.28},
+  {x:8762, y:684, kind:'flower', size:0.62},
 
   // extras de exploração
-  {x:1305, y:524, kind:'flower', size:0.74}, {x:1355, y:524, kind:'heart', size:0.68},
-  {x:2625, y:494, kind:'flower', size:0.74}, {x:2675, y:494, kind:'heart', size:0.68},
-  {x:3905, y:494, kind:'flower', size:0.74}, {x:3955, y:494, kind:'heart', size:0.68},
-  {x:5185, y:494, kind:'flower', size:0.74}, {x:5235, y:494, kind:'heart', size:0.68},
-  {x:6465, y:494, kind:'flower', size:0.74}, {x:6515, y:494, kind:'heart', size:0.68},
-  {x:7745, y:494, kind:'flower', size:0.74}, {x:7795, y:494, kind:'heart', size:0.68},
-  {x:8965, y:554, kind:'flower', size:0.74}, {x:9015, y:554, kind:'heart', size:0.68}
+  {x:1315, y:524, kind:'heart', size:0.55},
+  {x:2635, y:494, kind:'heart', size:0.55},
+  {x:3915, y:494, kind:'heart', size:0.55},
+  {x:5195, y:494, kind:'heart', size:0.55},
+  {x:6475, y:494, kind:'heart', size:0.55},
+  {x:7755, y:494, kind:'heart', size:0.55},
+  {x:8975, y:554, kind:'heart', size:0.55}
 ];
 
 totalEl.textContent = HEART_TOTAL;
@@ -764,7 +764,7 @@ function heartSurfaceCandidates(){
     ...islands.map(s => ({...s, kind:'island'})),
     ...rearIslands.map(s => ({...s, kind:'rearIsland'}))
   ].filter(s =>
-    s.w >= 80 &&
+    s.w >= 70 &&
     s.x < portal.x + 80
   );
 }
@@ -774,7 +774,7 @@ function randomBetween(min, max){
 }
 
 function makeHeartOnSurface(surface, order){
-  const margin = Math.min(38, Math.max(18, surface.w * 0.22));
+  const margin = Math.min(24, Math.max(12, surface.w * 0.18));
   const minX = surface.x + margin;
   const maxX = surface.x + surface.w - margin;
   const x = randomBetween(minX, Math.max(minX, maxX));
@@ -1354,8 +1354,8 @@ function drawFloatingPlatform(rect, opts={}){
   const left = worldToScreen(base.x + 16, base.y).x;
   const right = worldToScreen(base.x + base.w - 16, base.y).x;
   const y = worldToScreen(base.x, base.y).y + 8*scale;
-  for(let tx=left; tx<right; tx+=30*scale){
-    drawTinyFlower(tx, y - 3*scale, 0.32);
+  for(let tx=left; tx<right; tx+=38*scale){
+    drawTinyFlower(tx, y - 3*scale, 0.24);
   }
 
   ctx.restore();
