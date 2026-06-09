@@ -307,13 +307,14 @@ const rearIslands = [];
 // Blocos invisíveis do desafio do coração 3.
 // Eles só ficam sólidos quando o coração número 3 está ativo.
 const invisibleHeartBlocks = [
-  // Agora ficam mais afastados das plataformas visíveis.
-  // O coração 3 nasce no último bloco, bem mais longe de qualquer plataforma comum.
-  {x:2968, y:688, w:72, h:18, invisible:true},
-  {x:3096, y:618, w:64, h:18, invisible:true},
-  {x:3228, y:548, w:58, h:18, invisible:true},
-  {x:3364, y:482, w:52, h:18, invisible:true},
-  {x:3510, y:428, w:48, h:18, invisible:true, target:true}
+  // Desafio do coração 3 bem mais difícil:
+  // blocos menores, mais espaçados e com o coração mais alto/isolado.
+  {x:3048, y:668, w:50, h:16, invisible:true},
+  {x:3186, y:600, w:44, h:16, invisible:true},
+  {x:3330, y:532, w:38, h:16, invisible:true},
+  {x:3484, y:468, w:34, h:16, invisible:true},
+  {x:3648, y:414, w:30, h:16, invisible:true},
+  {x:3824, y:372, w:28, h:16, invisible:true, target:true}
 ];
 
 // Sem caixas empurráveis para evitar poluição e blocos sobrepostos.
@@ -956,7 +957,7 @@ function spawnNextHeart(){
   activeHeart = chooseNextHeartPosition();
 
   if(activeHeart && activeHeart.order === 3){
-    speechBubbleText = 'o coração está longe das plataformas... deve ter um caminho invisível!';
+    speechBubbleText = 'esse coração está bem difícil... os blocos invisíveis são pequenos!';
     speechBubbleTimer = 300;
   }
 }
@@ -1562,18 +1563,18 @@ function drawInvisibleHeartBlocks(){
     ctx.save();
 
     // Quase invisível: dá para sentir que tem algo ali, mas não parece uma plataforma normal.
-    const alpha = 0.075 + 0.04*Math.sin(t + i*0.8);
+    const alpha = 0.045 + 0.025*Math.sin(t + i*0.8);
     ctx.globalAlpha = alpha;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(s.x, s.y, b.w*scale, b.h*scale);
 
-    ctx.globalAlpha = 0.18 + 0.08*Math.sin(t*1.4 + i);
+    ctx.globalAlpha = 0.12 + 0.05*Math.sin(t*1.4 + i);
     ctx.strokeStyle = 'rgba(255,255,255,.9)';
     ctx.lineWidth = 1.3*scale;
     ctx.strokeRect(s.x, s.y, b.w*scale, b.h*scale);
 
     // pequenas estrelinhas para dar uma dica sem revelar demais
-    ctx.globalAlpha = 0.45;
+    ctx.globalAlpha = 0.32;
     ctx.fillStyle = '#ffd6ee';
     ctx.font = `${9*scale}px Arial`;
     ctx.textAlign = 'center';
@@ -1592,7 +1593,7 @@ function drawHearts(){
   const bob = Math.sin(t + currentHeartIndex) * 6;
   const pulse = 1 + 0.12*Math.sin(t*1.5 + currentHeartIndex*0.8);
   const s = worldToScreen(h.x, h.y + bob);
-  const size = 38 * pulse * scale;
+  const size = (h.invisibleChallenge ? 34 : 38) * pulse * scale;
 
   ctx.save();
 
