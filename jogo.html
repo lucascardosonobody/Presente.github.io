@@ -358,6 +358,7 @@ let currentHeartIndex = 0;
 let activeHeart = null;
 let activeLoveHearts = [];
 let forcedHardHeartDone = false;
+let strangeModeMusicStopped = false;
 const collectedHearts = [];
 
 const portal = { x: 8990, y: groundY-116, w: 64, h: 96 };
@@ -763,6 +764,10 @@ function worldToScreen(x,y){
   return { x:(x-cam.x)*scale, y:y*scale + (H-world.h*scale)*verticalFactor };
 }
 
+function strangeSixthHeartActive(){
+  return activeHeart && activeHeart.order === 6;
+}
+
 function invisibleHeartChallengeActive(){
   return activeHeart && activeHeart.order === 3;
 }
@@ -797,6 +802,54 @@ function heartSurfaceCandidates(){
     s.w >= 68 &&
     s.x < portal.x + 80
   );
+}
+
+function heartTouchesSpike(heart){
+  const pad = heart.invisibleChallenge ? 15 : 24;
+  const box = {
+    x: heart.x - pad,
+    y: heart.y - pad,
+    w: pad * 2,
+    h: pad * 2
+  };
+
+  // Margem extra para não parecer que o coração nasceu em cima do espinho.
+  return spikes.some(sp => rects(box, {
+    x: sp.x - 18,
+    y: sp.y - 22,
+    w: sp.w + 36,
+    h: sp.h + 36
+  }));
+}
+
+function safeHeartOnSurface(surface, order){
+  for(let attempt=0; attempt<80; attempt++){
+    const heart = makeHeartOnSurface(surface, order);
+    if(!heartTouchesSpike(heart)) return heart;
+  }
+
+  // Plano de segurança: tenta pontos fixos da plataforma/chão, fugindo dos espinhos.
+  const points = [
+    surface.x + surface.w * 0.18,
+    surface.x + surface.w * 0.35,
+    surface.x + surface.w * 0.50,
+    surface.x + surface.w * 0.65,
+    surface.x + surface.w * 0.82
+  ];
+
+  for(const x of points){
+    const heart = {
+      x,
+      y: surface.y - 34,
+      g:false,
+      order,
+      surfaceKind: surface.kind
+    };
+
+    if(!heartTouchesSpike(heart)) return heart;
+  }
+
+  return null;
 }
 
 function randomBetween(min, max){
@@ -862,7 +915,20 @@ function chooseHardHeartPosition(){
 
   // Escolhe uma das plataformas difíceis acessíveis e coloca o coração no centro,
   // para garantir que pelo menos um coração realmente nasça nela.
-  const surface = pool[Math.floor(Math.random() * pool.length)];
+  for(let attempt=0; attempt<80; attempt++){
+    const surface = pool[Math.floor(Math.random() * pool.length)];
+    const heart = {
+      x: surface.x + surface.w / 2,
+      y: surface.y - 34,
+      g:false,
+      order: currentHeartIndex + 1,
+      surfaceKind: surface.kind,
+      hard:true
+    };
+    if(!heartTouchesSpike(heart)) return heart;
+  }
+
+  const surface = pool[0];
   return {
     x: surface.x + surface.w / 2,
     y: surface.y - 34,
@@ -877,12 +943,13 @@ function createLoveHeartGroup(){
   // Quinto coração especial:
   // em vez de aparecer só 1, aparecem 5 corações número 5.
   // Ela precisa pegar todos para liberar o coração 6.
+  // Todos ficam longe dos espinhos.
   return [
-    {x:4920, y:groundY-8-34, g:false, order:5, loveGroup:true},
+    {x:5060, y:groundY-8-34, g:false, order:5, loveGroup:true},
     {x:5215, y:552-34, g:false, order:5, loveGroup:true},
     {x:5585, y:675-34, g:false, order:5, loveGroup:true},
     {x:5855, y:600-34, g:false, order:5, loveGroup:true},
-    {x:6235, y:groundY-34, g:false, order:5, loveGroup:true}
+    {x:6355, y:groundY-34, g:false, order:5, loveGroup:true}
   ];
 }
 
@@ -912,10 +979,10 @@ function chooseNextHeartPosition(){
   // seja no começo, no meio, no final, atrás ou na frente.
   for(let attempt=0; attempt<220; attempt++){
     const surface = all[Math.floor(Math.random() * all.length)];
-    const heart = makeHeartOnSurface(surface, currentHeartIndex + 1);
+    const heart = safeHeartOnSurface(surface, currentHeartIndex + 1);
 
-    // A única regra é: não pode nascer perto dela.
-    if(isFarFromPlayer(heart)) return heart;
+    // As regras são: não nascer perto dela e não nascer em cima de espinhos.
+    if(heart && isFarFromPlayer(heart)) return heart;
   }
 
   // Segunda tentativa: cria uma lista de plataformas realmente longe dela.
@@ -929,8 +996,8 @@ function chooseNextHeartPosition(){
   if(farSurfaces.length > 0){
     for(let attempt=0; attempt<160; attempt++){
       const surface = farSurfaces[Math.floor(Math.random() * farSurfaces.length)];
-      const heart = makeHeartOnSurface(surface, currentHeartIndex + 1);
-      if(isFarFromPlayer(heart)) return heart;
+      const heart = safeHeartOnSurface(surface, currentHeartIndex + 1);
+      if(heart && isFarFromPlayer(heart)) return heart;
     }
   }
 
@@ -954,6 +1021,8 @@ function chooseNextHeartPosition(){
         order: currentHeartIndex + 1,
         surfaceKind: surface.kind
       };
+
+      if(heartTouchesSpike(heart)) continue;
 
       const d = Math.abs(heart.x - px);
       if(d > bestDistance){
@@ -989,6 +1058,16 @@ function spawnNextHeart(){
     speechBubbleText = 'esse coração é o desafio extremo... quase nada aparece!';
     speechBubbleTimer = 300;
   }
+
+  // Coração 6: o mundo fica estranho, as fotos somem e a música para.
+  if(activeHeart && activeHeart.order === 6){
+    if(!strangeModeMusicStopped){
+      stopMusic();
+      strangeModeMusicStopped = true;
+    }
+    speechBubbleText = 'O QUE ESTÁ ACONTECENDO?!?!?!!?';
+    speechBubbleTimer = 420;
+  }
 }
 
 function resetHearts(){
@@ -996,6 +1075,7 @@ function resetHearts(){
   collectedHearts.length = 0;
   activeLoveHearts = [];
   forcedHardHeartDone = false;
+  strangeModeMusicStopped = false;
   activeHeart = null;
   scoreEl.textContent = 0;
   spawnNextHeart();
@@ -1273,6 +1353,34 @@ function drawCandySparkles(){
 
 function drawSky(){
   const sky=ctx.createLinearGradient(0,0,0,H);
+
+  if(strangeSixthHeartActive()){
+    sky.addColorStop(0,'#bfc7d2');
+    sky.addColorStop(0.36,'#d4dae2');
+    sky.addColorStop(0.70,'#e4e7ec');
+    sky.addColorStop(1,'#f1f1f3');
+    ctx.fillStyle=sky;
+    ctx.fillRect(0,0,W,H);
+
+    const moonGrad = ctx.createRadialGradient(W-72,74,8,W-72,74,42);
+    moonGrad.addColorStop(0,'rgba(235,238,242,.92)');
+    moonGrad.addColorStop(1,'rgba(135,145,160,.22)');
+    ctx.fillStyle=moonGrad;
+    ctx.beginPath();
+    ctx.arc(W-72,74,34,0,Math.PI*2);
+    ctx.fill();
+
+    for(const c of decoClouds){
+      const x=((c.x-cam.x*0.06)%(W+220)+W+220)%(W+220)-110;
+      drawTintedImage(imgs.cloud, x, c.y, imgs.cloud.width*c.s, imgs.cloud.height*c.s, 'rgba(150,158,170,0.25)', 'rgba(255,255,255,0.06)');
+    }
+
+    drawHill('#a9b1bd', 0.08, 640, 42);
+    drawHill('#929ba8', 0.16, 700, 70);
+    drawHill('rgba(118,128,142,0.50)', 0.24, 742, 46);
+    return;
+  }
+
   sky.addColorStop(0,'#ffc7ea');
   sky.addColorStop(0.34,'#ffd9f3');
   sky.addColorStop(0.68,'#ffe7f6');
@@ -1844,10 +1952,42 @@ function drawPlayer(){
   }
 }
 
+function drawStrangeSixthOverlay(){
+  if(!strangeSixthHeartActive()) return;
+
+  const t = Date.now()*0.004;
+  ctx.save();
+  ctx.globalAlpha = 0.16 + 0.04*Math.sin(t);
+  ctx.fillStyle = '#1e2631';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.globalAlpha = 0.20;
+  ctx.strokeStyle = 'rgba(255,255,255,.25)';
+  ctx.lineWidth = 1*scale;
+  for(let x=((Math.sin(t)*40)-80); x<W+80; x+=84*scale){
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x+38*scale,H);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function draw(){
+  const strange = strangeSixthHeartActive();
+
   drawSky();
+
+  if(strange){
+    ctx.save();
+    ctx.filter = 'grayscale(55%) saturate(45%) brightness(88%)';
+  }
+
   drawDeco();
-  drawPhotoSpots();
+
+  // No sexto coração, as fotos somem.
+  if(!strange) drawPhotoSpots();
+
   drawGroundSegments();
   drawRopes();
   drawLadders();
@@ -1856,6 +1996,12 @@ function draw(){
   drawInvisibleHeartBlocks();
   drawCrates();
   drawSpikes();
+
+  if(strange){
+    ctx.restore();
+    drawStrangeSixthOverlay();
+  }
+
   drawHearts();
   drawPortal();
   drawPlayer();
