@@ -307,14 +307,18 @@ const rearIslands = [];
 // Blocos invisíveis do desafio do coração 3.
 // Eles só ficam sólidos quando o coração número 3 está ativo.
 const invisibleHeartBlocks = [
-  // Desafio do coração 3 bem mais difícil:
-  // blocos menores, mais espaçados e com o coração mais alto/isolado.
-  {x:3048, y:668, w:50, h:16, invisible:true},
-  {x:3186, y:600, w:44, h:16, invisible:true},
-  {x:3330, y:532, w:38, h:16, invisible:true},
-  {x:3484, y:468, w:34, h:16, invisible:true},
-  {x:3648, y:414, w:30, h:16, invisible:true},
-  {x:3824, y:372, w:28, h:16, invisible:true, target:true}
+  // MODO EXTREMO do coração 3:
+  // blocos minúsculos, quase invisíveis e em zigue-zague.
+  // É para ser MUITO difícil, mas ainda possível com pulo preciso.
+  {x:2976, y:690, w:34, h:14, invisible:true},
+  {x:3118, y:632, w:30, h:14, invisible:true},
+  {x:3018, y:574, w:28, h:14, invisible:true},
+  {x:3162, y:518, w:26, h:14, invisible:true},
+  {x:3060, y:462, w:24, h:14, invisible:true},
+  {x:3210, y:410, w:22, h:14, invisible:true},
+  {x:3122, y:360, w:22, h:14, invisible:true},
+  {x:3278, y:318, w:20, h:14, invisible:true},
+  {x:3448, y:286, w:18, h:14, invisible:true, target:true}
 ];
 
 // Sem caixas empurráveis para evitar poluição e blocos sobrepostos.
@@ -957,7 +961,7 @@ function spawnNextHeart(){
   activeHeart = chooseNextHeartPosition();
 
   if(activeHeart && activeHeart.order === 3){
-    speechBubbleText = 'esse coração está bem difícil... os blocos invisíveis são pequenos!';
+    speechBubbleText = 'esse coração é o desafio extremo... quase nada aparece!';
     speechBubbleTimer = 300;
   }
 }
@@ -1122,7 +1126,12 @@ function update(){
 
   if(hitSpike() || player.y > world.h+120) respawn();
 
-  if(activeHeart && rects(player, {x:activeHeart.x-20,y:activeHeart.y-20,w:40,h:40})){
+  if(activeHeart && rects(player, {
+    x: activeHeart.x - (activeHeart.invisibleChallenge ? 13 : 20),
+    y: activeHeart.y - (activeHeart.invisibleChallenge ? 13 : 20),
+    w: activeHeart.invisibleChallenge ? 26 : 40,
+    h: activeHeart.invisibleChallenge ? 26 : 40
+  })){
     activeHeart.g = true;
     collectedHearts.push(activeHeart);
     currentHeartIndex++;
@@ -1563,22 +1572,24 @@ function drawInvisibleHeartBlocks(){
     ctx.save();
 
     // Quase invisível: dá para sentir que tem algo ali, mas não parece uma plataforma normal.
-    const alpha = 0.045 + 0.025*Math.sin(t + i*0.8);
+    const alpha = 0.018 + 0.014*Math.sin(t + i*0.8);
     ctx.globalAlpha = alpha;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(s.x, s.y, b.w*scale, b.h*scale);
 
-    ctx.globalAlpha = 0.12 + 0.05*Math.sin(t*1.4 + i);
+    ctx.globalAlpha = 0.055 + 0.025*Math.sin(t*1.4 + i);
     ctx.strokeStyle = 'rgba(255,255,255,.9)';
     ctx.lineWidth = 1.3*scale;
     ctx.strokeRect(s.x, s.y, b.w*scale, b.h*scale);
 
-    // pequenas estrelinhas para dar uma dica sem revelar demais
-    ctx.globalAlpha = 0.32;
-    ctx.fillStyle = '#ffd6ee';
-    ctx.font = `${9*scale}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.fillText('✦', s.x + b.w*scale/2, s.y - 5*scale + Math.sin(t+i)*2*scale);
+    // pequenas estrelinhas raras para dar uma pista mínima sem revelar o caminho inteiro
+    if(i === 0 || i === invisibleHeartBlocks.length - 1 || Math.sin(t*0.9 + i) > 0.72){
+      ctx.globalAlpha = 0.16;
+      ctx.fillStyle = '#ffd6ee';
+      ctx.font = `${8*scale}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('✦', s.x + b.w*scale/2, s.y - 5*scale + Math.sin(t+i)*2*scale);
+    }
 
     ctx.restore();
   }
@@ -1593,7 +1604,7 @@ function drawHearts(){
   const bob = Math.sin(t + currentHeartIndex) * 6;
   const pulse = 1 + 0.12*Math.sin(t*1.5 + currentHeartIndex*0.8);
   const s = worldToScreen(h.x, h.y + bob);
-  const size = (h.invisibleChallenge ? 34 : 38) * pulse * scale;
+  const size = (h.invisibleChallenge ? 28 : 38) * pulse * scale;
 
   ctx.save();
 
