@@ -261,106 +261,48 @@ const groundSegments = [
 // 7 áreas com desenhos diferentes, agora com plataformas intermediárias acessíveis.
 // Não tem blocos dentro de blocos e não tem salto absurdo entre áreas.
 const islands = [
-  {x:300, y:690, w:150, h:36},
-  {x:435, y:630, w:150, h:36},
-  {x:568, y:565, w:160, h:36},
-  {x:702, y:500, w:150, h:36},
-  {x:845, y:570, w:160, h:36},
-  {x:992, y:645, w:150, h:36},
-  {x:1120, y:710, w:150, h:36},
-  {x:1250, y:675, w:150, h:36},
-  {x:1375, y:625, w:150, h:36},
-  {x:1510, y:680, w:160, h:36},
-  {x:1650, y:600, w:150, h:36},
-  {x:1790, y:520, w:155, h:36},
-  {x:1930, y:440, w:150, h:36},
-  {x:2070, y:525, w:170, h:36},
-  {x:2220, y:610, w:150, h:36},
-  {x:2350, y:690, w:160, h:36},
-  {x:2480, y:655, w:150, h:36},
-  {x:2610, y:600, w:150, h:36},
-  {x:2740, y:700, w:150, h:36},
-  {x:2860, y:625, w:140, h:36},
-  {x:2980, y:545, w:140, h:36},
-  {x:3100, y:465, w:140, h:36},
-  {x:3225, y:385, w:150, h:36},
-  {x:3360, y:475, w:150, h:36},
-  {x:3500, y:575, w:150, h:36},
-  {x:3635, y:680, w:160, h:36},
-  {x:3775, y:635, w:150, h:36},
-  {x:3915, y:690, w:160, h:36},
-  {x:4055, y:610, w:150, h:36},
-  {x:4195, y:530, w:150, h:36},
-  {x:4330, y:450, w:150, h:36},
-  {x:4475, y:360, w:150, h:36},
-  {x:4625, y:455, w:150, h:36},
-  {x:4770, y:555, w:150, h:36},
-  {x:4900, y:660, w:160, h:36},
-  {x:5040, y:630, w:150, h:36},
-  {x:5170, y:575, w:150, h:36},
-  {x:5310, y:625, w:160, h:36},
-  {x:5450, y:700, w:150, h:36},
-  {x:5585, y:640, w:150, h:36},
-  {x:5730, y:555, w:160, h:36},
-  {x:5880, y:465, w:150, h:36},
-  {x:6030, y:555, w:160, h:36},
-  {x:6170, y:645, w:150, h:36},
-  {x:6310, y:610, w:150, h:36},
-  {x:6445, y:565, w:150, h:36},
-  {x:6585, y:685, w:190, h:36},
-  {x:6750, y:590, w:130, h:36},
-  {x:6890, y:500, w:200, h:36},
-  {x:7065, y:610, w:130, h:36},
-  {x:7205, y:520, w:180, h:36},
-  {x:7365, y:430, w:145, h:36},
-  {x:7500, y:610, w:160, h:36},
-  {x:7640, y:645, w:150, h:36},
-  {x:7770, y:585, w:150, h:36},
-  {x:7910, y:680, w:150, h:36},
-  {x:8045, y:600, w:160, h:36},
-  {x:8185, y:520, w:160, h:36},
-  {x:8325, y:430, w:150, h:36},
-  {x:8465, y:525, w:160, h:36},
-  {x:8610, y:620, w:150, h:36},
-  {x:8750, y:700, w:170, h:36}
+  // caminho 1: saída do início até o primeiro chão
+  {x:610, y:690, w:165, h:36},
+  {x:900, y:620, w:165, h:36},
+
+  // caminho 2
+  {x:1860, y:680, w:170, h:36},
+  {x:2150, y:610, w:170, h:36},
+
+  // caminho 3
+  {x:3140, y:655, w:170, h:36},
+  {x:3380, y:585, w:170, h:36},
+
+  // caminho 4
+  {x:4310, y:680, w:170, h:36},
+  {x:4580, y:610, w:170, h:36},
+
+  // caminho 5
+  {x:5500, y:675, w:170, h:36},
+  {x:5770, y:600, w:170, h:36},
+
+  // caminho 6
+  {x:6790, y:680, w:170, h:36},
+  {x:7070, y:600, w:170, h:36},
+  {x:7310, y:675, w:170, h:36},
+
+  // caminho 7: chegada ao portal
+  {x:8140, y:680, w:170, h:36},
+  {x:8420, y:600, w:170, h:36},
+  {x:8700, y:690, w:170, h:36},
+
+  // poucas plataformas extras para exploração/corações, sem lotar o mapa
+  {x:1260, y:530, w:150, h:36},
+  {x:2580, y:500, w:150, h:36},
+  {x:3860, y:500, w:150, h:36},
+  {x:5140, y:500, w:150, h:36},
+  {x:6420, y:500, w:150, h:36},
+  {x:7700, y:500, w:150, h:36},
+  {x:8920, y:560, w:150, h:36}
 ];
 
 // Plataformas do fundo, acessíveis e reposicionadas para apoiar os corações.
-const rearIslands = [
-  {x:380, y:485, w:130, h:34},
-  {x:515, y:400, w:130, h:34},
-  {x:655, y:325, w:130, h:34},
-  {x:800, y:400, w:130, h:34},
-  {x:1600, y:430, w:130, h:34},
-  {x:1740, y:350, w:130, h:34},
-  {x:1890, y:310, w:130, h:34},
-  {x:2150, y:405, w:130, h:34},
-  {x:2815, y:455, w:130, h:34},
-  {x:2955, y:370, w:130, h:34},
-  {x:3095, y:300, w:130, h:34},
-  {x:3250, y:275, w:130, h:34},
-  {x:3400, y:350, w:130, h:34},
-  {x:4010, y:430, w:130, h:34},
-  {x:4175, y:350, w:130, h:34},
-  {x:4350, y:285, w:130, h:34},
-  {x:4550, y:295, w:130, h:34},
-  {x:4700, y:380, w:130, h:34},
-  {x:5380, y:450, w:130, h:34},
-  {x:5550, y:360, w:130, h:34},
-  {x:5740, y:300, w:130, h:34},
-  {x:5930, y:365, w:130, h:34},
-  {x:6080, y:455, w:130, h:34},
-  {x:6660, y:420, w:130, h:34},
-  {x:6835, y:340, w:130, h:34},
-  {x:7020, y:285, w:130, h:34},
-  {x:7215, y:330, w:130, h:34},
-  {x:7400, y:390, w:130, h:34},
-  {x:7985, y:430, w:130, h:34},
-  {x:8140, y:350, w:130, h:34},
-  {x:8315, y:300, w:130, h:34},
-  {x:8500, y:350, w:130, h:34},
-  {x:8670, y:440, w:130, h:34}
-];
+const rearIslands = [];
 
 // Sem caixas empurráveis para evitar poluição e blocos sobrepostos.
 const crates = [];
@@ -377,13 +319,12 @@ const spikes = [
 
 // Escadas são apoio visual e não formam blocos.
 const ladders = [
-  {x:580, y:590, h:80},
-  {x:1800, y:548, h:78},
-  {x:2990, y:570, h:76},
-  {x:4210, y:558, h:78},
-  {x:5745, y:582, h:76},
-  {x:6905, y:528, h:78},
-  {x:8200, y:548, h:78}
+  {x:900, y:646, h:70},
+  {x:2150, y:636, h:70},
+  {x:3380, y:611, h:70},
+  {x:5770, y:626, h:70},
+  {x:7070, y:626, h:70},
+  {x:8420, y:626, h:70}
 ];
 
 // Cordas removidas nesta versão para não parecerem plataformas sólidas.
@@ -515,59 +456,37 @@ const photoSpots = [
   {x:8540, y: 470, w: 44, h: 44, photo: 18, layer: 1, drift: 0.78}
 ];
 const platformDecos = [
-  {x:282, y: 684, kind: 'flower', size: 0.95}, {x:318, y: 684, kind: 'bush', size: 0.42}, {x:352, y: 684, kind: 'heart', size: 0.82},
-  {x:432, y: 624, kind: 'flower', size: 0.92}, {x:468, y: 624, kind: 'flower', size: 1.0}, {x:502, y: 624, kind: 'bush', size: 0.4},
-  {x:562, y: 559, kind: 'flower', size: 0.88}, {x:598, y: 559, kind: 'heart', size: 0.9}, {x:632, y: 559, kind: 'flower', size: 0.94},
-  {x:688, y: 494, kind: 'bush', size: 0.4}, {x:722, y: 494, kind: 'flower', size: 0.92}, {x:758, y: 494, kind: 'heart', size: 0.82},
-  {x:822, y: 564, kind: 'flower', size: 0.9}, {x:858, y: 564, kind: 'flower', size: 0.95}, {x:892, y: 564, kind: 'bush', size: 0.4},
-  {x:972, y: 639, kind: 'heart', size: 0.8}, {x:1008, y: 639, kind: 'bush', size: 0.42}, {x:1042, y: 639, kind: 'flower', size: 0.88},
-  {x:1228, y: 669, kind: 'flower', size: 0.88}, {x:1262, y: 669, kind: 'flower', size: 0.95}, {x:1298, y: 669, kind: 'bush', size: 0.42},
-  {x:1352, y: 619, kind: 'heart', size: 0.8}, {x:1388, y: 619, kind: 'heart', size: 0.85}, {x:1422, y: 619, kind: 'flower', size: 0.9},
-  {x:1490, y: 674, kind: 'bush', size: 0.4}, {x:1525, y: 674, kind: 'flower', size: 0.9}, {x:1560, y: 674, kind: 'heart', size: 0.8},
-  {x:1632, y: 594, kind: 'flower', size: 0.92}, {x:1668, y: 594, kind: 'flower', size: 1.0}, {x:1702, y: 594, kind: 'bush', size: 0.42},
-  {x:1905, y: 434, kind: 'flower', size: 0.9}, {x:1940, y: 434, kind: 'heart', size: 0.85}, {x:1975, y: 434, kind: 'flower', size: 0.86},
-  {x:2042, y: 519, kind: 'bush', size: 0.42}, {x:2078, y: 519, kind: 'flower', size: 0.9}, {x:2112, y: 519, kind: 'heart', size: 0.8},
-  {x:2198, y: 604, kind: 'flower', size: 0.88}, {x:2232, y: 604, kind: 'flower', size: 0.92}, {x:2268, y: 604, kind: 'bush', size: 0.42},
-  {x:2712, y: 694, kind: 'heart', size: 0.8}, {x:2748, y: 694, kind: 'bush', size: 0.45}, {x:2782, y: 694, kind: 'flower', size: 0.88},
-  {x:2835, y: 619, kind: 'flower', size: 0.88}, {x:2870, y: 619, kind: 'flower', size: 0.95}, {x:2905, y: 619, kind: 'heart', size: 0.82},
-  {x:2952, y: 539, kind: 'flower', size: 0.88}, {x:2988, y: 539, kind: 'heart', size: 0.85}, {x:3022, y: 539, kind: 'flower', size: 0.95},
-  {x:3072, y: 459, kind: 'heart', size: 0.82}, {x:3108, y: 459, kind: 'flower', size: 0.98}, {x:3142, y: 459, kind: 'bush', size: 0.4},
-  {x:3198, y: 379, kind: 'flower', size: 0.9}, {x:3232, y: 379, kind: 'bush', size: 0.42}, {x:3268, y: 379, kind: 'heart', size: 0.8},
-  {x:3338, y: 469, kind: 'flower', size: 0.86}, {x:3372, y: 469, kind: 'flower', size: 0.9}, {x:3408, y: 469, kind: 'heart', size: 0.8},
-  {x:3472, y: 569, kind: 'bush', size: 0.42}, {x:3508, y: 569, kind: 'flower', size: 0.9}, {x:3542, y: 569, kind: 'heart', size: 0.82},
-  {x:3888, y: 684, kind: 'heart', size: 0.8}, {x:3922, y: 684, kind: 'flower', size: 0.95}, {x:3958, y: 684, kind: 'flower', size: 0.88},
-  {x:4030, y: 604, kind: 'flower', size: 0.86}, {x:4065, y: 604, kind: 'bush', size: 0.44}, {x:4100, y: 604, kind: 'heart', size: 0.8},
-  {x:4168, y: 524, kind: 'flower', size: 0.88}, {x:4202, y: 524, kind: 'flower', size: 0.95}, {x:4238, y: 524, kind: 'bush', size: 0.42},
-  {x:4302, y: 444, kind: 'flower', size: 0.88}, {x:4338, y: 444, kind: 'heart', size: 0.88}, {x:4372, y: 444, kind: 'flower', size: 0.92},
-  {x:4452, y: 354, kind: 'heart', size: 0.82}, {x:4488, y: 354, kind: 'flower', size: 1.0}, {x:4522, y: 354, kind: 'bush', size: 0.42},
-  {x:4598, y: 449, kind: 'flower', size: 0.88}, {x:4632, y: 449, kind: 'bush', size: 0.45}, {x:4668, y: 449, kind: 'heart', size: 0.8},
-  {x:4745, y: 549, kind: 'flower', size: 0.88}, {x:4780, y: 549, kind: 'flower', size: 0.95}, {x:4815, y: 549, kind: 'bush', size: 0.42},
-  {x:4872, y: 654, kind: 'heart', size: 0.8}, {x:4908, y: 654, kind: 'bush', size: 0.45}, {x:4942, y: 654, kind: 'flower', size: 0.9},
-  {x:5288, y: 619, kind: 'flower', size: 0.88}, {x:5322, y: 619, kind: 'flower', size: 0.95}, {x:5358, y: 619, kind: 'heart', size: 0.8},
-  {x:5428, y: 694, kind: 'bush', size: 0.42}, {x:5462, y: 694, kind: 'bush', size: 0.45}, {x:5498, y: 694, kind: 'flower', size: 0.9},
-  {x:5562, y: 634, kind: 'flower', size: 0.85}, {x:5598, y: 634, kind: 'flower', size: 0.9}, {x:5632, y: 634, kind: 'heart', size: 0.82},
-  {x:5708, y: 549, kind: 'flower', size: 0.88}, {x:5742, y: 549, kind: 'heart', size: 0.85}, {x:5778, y: 549, kind: 'flower', size: 0.95},
-  {x:5855, y: 459, kind: 'bush', size: 0.4}, {x:5890, y: 459, kind: 'flower', size: 0.95}, {x:5925, y: 459, kind: 'heart', size: 0.8},
-  {x:6008, y: 549, kind: 'flower', size: 0.88}, {x:6042, y: 549, kind: 'bush', size: 0.45}, {x:6078, y: 549, kind: 'flower', size: 0.9},
-  {x:6142, y: 639, kind: 'heart', size: 0.8}, {x:6178, y: 639, kind: 'flower', size: 0.92}, {x:6212, y: 639, kind: 'bush', size: 0.42},
-  {x:6288, y: 604, kind: 'flower', size: 0.88}, {x:6322, y: 604, kind: 'bush', size: 0.42}, {x:6358, y: 604, kind: 'heart', size: 0.82},
-  {x:6422, y: 559, kind: 'flower', size: 0.9}, {x:6458, y: 559, kind: 'flower', size: 0.95}, {x:6492, y: 559, kind: 'bush', size: 0.42},
-  {x:6562, y: 679, kind: 'flower', size: 0.88}, {x:6598, y: 679, kind: 'heart', size: 0.88}, {x:6632, y: 679, kind: 'flower', size: 0.94},
-  {x:6725, y: 584, kind: 'flower', size: 0.86}, {x:6760, y: 584, kind: 'bush', size: 0.42}, {x:6795, y: 584, kind: 'heart', size: 0.8},
-  {x:6865, y: 494, kind: 'heart', size: 0.82}, {x:6900, y: 494, kind: 'flower', size: 0.98}, {x:6935, y: 494, kind: 'flower', size: 0.9},
-  {x:7038, y: 604, kind: 'flower', size: 0.88}, {x:7072, y: 604, kind: 'heart', size: 0.85}, {x:7108, y: 604, kind: 'bush', size: 0.42},
-  {x:7178, y: 514, kind: 'flower', size: 0.86}, {x:7212, y: 514, kind: 'bush', size: 0.44}, {x:7248, y: 514, kind: 'heart', size: 0.8},
-  {x:7338, y: 424, kind: 'flower', size: 0.88}, {x:7372, y: 424, kind: 'flower', size: 0.95}, {x:7408, y: 424, kind: 'heart', size: 0.8},
-  {x:7478, y: 604, kind: 'bush', size: 0.42}, {x:7512, y: 604, kind: 'bush', size: 0.44}, {x:7548, y: 604, kind: 'flower', size: 0.88},
-  {x:7618, y: 639, kind: 'flower', size: 0.85}, {x:7652, y: 639, kind: 'flower', size: 0.9}, {x:7688, y: 639, kind: 'heart', size: 0.82},
-  {x:7742, y: 579, kind: 'flower', size: 0.88}, {x:7778, y: 579, kind: 'heart', size: 0.85}, {x:7812, y: 579, kind: 'bush', size: 0.42},
-  {x:7888, y: 674, kind: 'flower', size: 0.88}, {x:7922, y: 674, kind: 'bush', size: 0.44}, {x:7958, y: 674, kind: 'heart', size: 0.8},
-  {x:8022, y: 594, kind: 'flower', size: 0.88}, {x:8058, y: 594, kind: 'flower', size: 0.95}, {x:8092, y: 594, kind: 'bush', size: 0.42},
-  {x:8160, y: 514, kind: 'flower', size: 0.86}, {x:8195, y: 514, kind: 'bush', size: 0.42}, {x:8230, y: 514, kind: 'heart', size: 0.8},
-  {x:8298, y: 424, kind: 'heart', size: 0.82}, {x:8332, y: 424, kind: 'flower', size: 1.0}, {x:8368, y: 424, kind: 'flower', size: 0.9},
-  {x:8442, y: 519, kind: 'flower', size: 0.88}, {x:8478, y: 519, kind: 'heart', size: 0.85}, {x:8512, y: 519, kind: 'bush', size: 0.42},
-  {x:8582, y: 614, kind: 'flower', size: 0.88}, {x:8618, y: 614, kind: 'bush', size: 0.45}, {x:8652, y: 614, kind: 'heart', size: 0.8},
-  {x:8730, y: 694, kind: 'flower', size: 0.92}, {x:8765, y: 694, kind: 'flower', size: 1.0}, {x:8800, y: 694, kind: 'heart', size: 0.82}
+  {x:650, y:684, kind:'flower', size:0.9}, {x:720, y:684, kind:'heart', size:0.82},
+  {x:940, y:614, kind:'bush', size:0.42}, {x:1010, y:614, kind:'flower', size:0.9},
+
+  {x:1900, y:674, kind:'flower', size:0.9}, {x:1980, y:674, kind:'heart', size:0.8},
+  {x:2190, y:604, kind:'bush', size:0.42}, {x:2260, y:604, kind:'flower', size:0.9},
+
+  {x:3180, y:649, kind:'flower', size:0.9}, {x:3250, y:649, kind:'heart', size:0.8},
+  {x:3420, y:579, kind:'bush', size:0.42}, {x:3490, y:579, kind:'flower', size:0.9},
+
+  {x:4350, y:674, kind:'flower', size:0.9}, {x:4420, y:674, kind:'heart', size:0.8},
+  {x:4620, y:604, kind:'bush', size:0.42}, {x:4690, y:604, kind:'flower', size:0.9},
+
+  {x:5540, y:669, kind:'flower', size:0.9}, {x:5610, y:669, kind:'heart', size:0.8},
+  {x:5810, y:594, kind:'bush', size:0.42}, {x:5880, y:594, kind:'flower', size:0.9},
+
+  {x:6830, y:674, kind:'flower', size:0.9}, {x:6900, y:674, kind:'heart', size:0.8},
+  {x:7110, y:594, kind:'bush', size:0.42}, {x:7180, y:594, kind:'flower', size:0.9},
+  {x:7350, y:669, kind:'flower', size:0.9}, {x:7420, y:669, kind:'heart', size:0.8},
+
+  {x:8180, y:674, kind:'flower', size:0.9}, {x:8250, y:674, kind:'heart', size:0.8},
+  {x:8460, y:594, kind:'bush', size:0.42}, {x:8530, y:594, kind:'flower', size:0.9},
+  {x:8740, y:684, kind:'flower', size:0.9}, {x:8810, y:684, kind:'heart', size:0.8},
+
+  // extras de exploração
+  {x:1290, y:524, kind:'flower', size:0.85}, {x:1355, y:524, kind:'heart', size:0.78},
+  {x:2610, y:494, kind:'flower', size:0.85}, {x:2675, y:494, kind:'heart', size:0.78},
+  {x:3890, y:494, kind:'flower', size:0.85}, {x:3955, y:494, kind:'heart', size:0.78},
+  {x:5170, y:494, kind:'flower', size:0.85}, {x:5235, y:494, kind:'heart', size:0.78},
+  {x:6450, y:494, kind:'flower', size:0.85}, {x:6515, y:494, kind:'heart', size:0.78},
+  {x:7730, y:494, kind:'flower', size:0.85}, {x:7795, y:494, kind:'heart', size:0.78},
+  {x:8950, y:554, kind:'flower', size:0.85}, {x:9015, y:554, kind:'heart', size:0.78}
 ];
 
 totalEl.textContent = HEART_TOTAL;
@@ -1447,10 +1366,6 @@ function drawGroundSegments(){
 }
 
 function drawIslands(){
-  for(const p of rearIslands){
-    drawFloatingPlatform(p, { alpha:0.66, offsetX:14, offsetY:-8, shrink:0.90 });
-  }
-
   for(const p of islands){
     drawFloatingPlatform(p);
   }
