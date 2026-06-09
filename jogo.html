@@ -291,14 +291,14 @@ const islands = [
   {x:8456, y:600, w:98, h:26},
   {x:8736, y:690, w:98, h:26},
 
-  // poucas plataformas extras para exploração/corações, bem menores
-  {x:1292, y:530, w:86, h:26},
-  {x:2612, y:500, w:86, h:26},
-  {x:3892, y:500, w:86, h:26},
-  {x:5172, y:500, w:86, h:26},
-  {x:6452, y:500, w:86, h:26},
-  {x:7732, y:500, w:86, h:26},
-  {x:8952, y:560, w:86, h:26}
+  // plataformas extremamente difíceis, mas acessíveis com pulo preciso
+  {x:1292, y:532, w:86, h:26, hard:true},
+  {x:2612, y:528, w:86, h:26, hard:true},
+  {x:3892, y:532, w:86, h:26, hard:true},
+  {x:5172, y:528, w:86, h:26, hard:true},
+  {x:6452, y:532, w:86, h:26, hard:true},
+  {x:7732, y:528, w:86, h:26, hard:true},
+  {x:8952, y:560, w:86, h:26, hard:true}
 ];
 
 // Plataformas do fundo, acessíveis e reposicionadas para apoiar os corações.
@@ -339,6 +339,7 @@ const MIN_HEART_DISTANCE_FROM_PLAYER = 520;
 // O próximo coração só nasce depois que o anterior for coletado.
 let currentHeartIndex = 0;
 let activeHeart = null;
+let forcedHardHeartDone = false;
 const collectedHearts = [];
 
 const portal = { x: 8990, y: groundY-116, w: 64, h: 96 };
@@ -479,13 +480,13 @@ const platformDecos = [
   {x:8482, y:594, kind:'bush', size:0.28},
   {x:8762, y:684, kind:'flower', size:0.62},
 
-  // extras de exploração
-  {x:1315, y:524, kind:'heart', size:0.55},
-  {x:2635, y:494, kind:'heart', size:0.55},
-  {x:3915, y:494, kind:'heart', size:0.55},
-  {x:5195, y:494, kind:'heart', size:0.55},
-  {x:6475, y:494, kind:'heart', size:0.55},
-  {x:7755, y:494, kind:'heart', size:0.55},
+  // marcas discretas nas plataformas difíceis
+  {x:1315, y:526, kind:'heart', size:0.55},
+  {x:2635, y:522, kind:'heart', size:0.55},
+  {x:3915, y:526, kind:'heart', size:0.55},
+  {x:5195, y:522, kind:'heart', size:0.55},
+  {x:6475, y:526, kind:'heart', size:0.55},
+  {x:7755, y:522, kind:'heart', size:0.55},
   {x:8975, y:554, kind:'heart', size:0.55}
 ];
 
@@ -805,9 +806,45 @@ function isFarFromPlayer(heart){
   return Math.abs(heart.x - px) >= MIN_HEART_DISTANCE_FROM_PLAYER;
 }
 
+function chooseHardHeartPosition(){
+  const all = heartSurfaceCandidates();
+  const hardSurfaces = all.filter(surface => surface.hard);
+  if(hardSurfaces.length === 0) return null;
+
+  const px = player.x + player.w / 2;
+  const farHard = hardSurfaces.filter(surface => {
+    const center = surface.x + surface.w/2;
+    return Math.abs(center - px) >= MIN_HEART_DISTANCE_FROM_PLAYER;
+  });
+
+  const pool = farHard.length ? farHard : hardSurfaces;
+
+  // Escolhe uma das plataformas difíceis e coloca o coração no centro,
+  // para garantir que pelo menos um coração realmente nasça nela.
+  const surface = pool[Math.floor(Math.random() * pool.length)];
+  return {
+    x: surface.x + surface.w / 2,
+    y: surface.y - 34,
+    g:false,
+    order: currentHeartIndex + 1,
+    surfaceKind: surface.kind,
+    hard:true
+  };
+}
+
 function chooseNextHeartPosition(){
   const all = heartSurfaceCandidates();
   const px = player.x + player.w / 2;
+
+  // Garante que pelo menos 1 coração nasça em uma plataforma extremamente difícil.
+  // Escolhi o 4º coração para isso, porque ela já vai estar explorando o mapa.
+  if(currentHeartIndex === 3 && !forcedHardHeartDone){
+    const hardHeart = chooseHardHeartPosition();
+    if(hardHeart){
+      forcedHardHeartDone = true;
+      return hardHeart;
+    }
+  }
 
   // Aqui está a correção principal:
   // antes o código favorecia plataformas à frente.
@@ -880,6 +917,7 @@ function spawnNextHeart(){
 function resetHearts(){
   currentHeartIndex = 0;
   collectedHearts.length = 0;
+  forcedHardHeartDone = false;
   activeHeart = null;
   scoreEl.textContent = 0;
   spawnNextHeart();
