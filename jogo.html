@@ -1402,6 +1402,8 @@ function update(){
 
     if(currentHeartIndex === 6){
       grayWorldAfterSixth = true;
+      player.vx = 0;
+      player.vy = 0;
       speechBubbleText = 'O QUE ESTÁ ACONTECENDO?!?!!?!?';
       speechBubbleTimer = 420;
     }
@@ -2234,13 +2236,13 @@ function draw(){
 
   drawSky();
 
-  if(grayWorld){
-    ctx.save();
-    ctx.filter = 'grayscale(100%) saturate(0%) brightness(86%) contrast(92%)';
-  }
-
+  // Corrigido: removi ctx.filter porque em alguns celulares ele pesa muito
+  // e pode travar/recarregar quando o 6º coração é pego.
   drawDeco();
-  drawPhotoSpots();
+
+  // No mundo cinza, desenho menos fotos para ficar leve e evitar travamento.
+  if(!grayWorld || frameTick % 2 === 0) drawPhotoSpots();
+
   drawGroundSegments();
   drawRopes();
   drawLadders();
@@ -2253,13 +2255,23 @@ function draw(){
   if(activeLoveHearts.length) drawLoveStorm();
 
   if(grayWorld){
-    ctx.restore();
-
-    // Camada cinza para deixar claro que o mundo perdeu a cor.
+    // Camadas leves para dar aparência cinza/sem cor sem usar filtro pesado.
     ctx.save();
-    ctx.globalAlpha = 0.20;
-    ctx.fillStyle = '#8d8d8d';
+
+    ctx.globalCompositeOperation = 'saturation';
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = '#777777';
     ctx.fillRect(0,0,W,H);
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 0.24;
+    ctx.fillStyle = '#6f6f6f';
+    ctx.fillRect(0,0,W,H);
+
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0,0,W,H);
+
     ctx.restore();
   }
 
